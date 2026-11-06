@@ -33,6 +33,11 @@ issued the same day. A guess would be a coin flip, so the agent stops and asks."
 
 *Show the "The agent needs you" box. Choose "bank row 8 pays ledger row 10". Click "Answer and re-run".*
 
+"It re-runs with my answer. The other 750 invoice, Granite Labs, is now open, so it gets a reminder draft too.
+The note at the top says what I decided."
+
+*Point at the "Re-run with your answers" note and the Overdue invoices card (now 3).*
+
 **1:25 to 1:55. Exceptions with evidence**
 "Now the reviewer only sees the exceptions. Delta Freight paid 15 dollars less than invoiced, probably a
 wire fee. Code computed that difference, and the model only wrote the sentence. This green tag means

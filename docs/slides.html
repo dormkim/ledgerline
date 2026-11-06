@@ -31,7 +31,8 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
   <h1 style="margin-top:150px">Ledgerline</h1>
   <p style="font-size:32px">A bank reconciliation agent that does not guess.</p>
   <p class="muted" style="font-size:24px">The code does the math, the model writes the words, and every number it writes is checked.</p>
-  <div class="foot" style="color:#b9c3da"><span>Runs on Vultr Cloud Compute + Vultr Serverless Inference</span><span>MIT licensed</span></div>
+  <p style="font-size:22px; margin-top:36px">Upload a bank statement and a ledger (CSV). Get matched lines, exceptions with evidence, and reminder drafts a person approves.</p>
+  <div class="foot" style="color:#b9c3da"><span>Runs on Vultr Cloud Compute + Vultr Serverless Inference · live demo and code linked in the README</span><span>MIT licensed</span></div>
 </section>
 
 <section class="s">
@@ -42,6 +43,7 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
     <li>Exports never look the same: <code>1.234,56</code> vs <code>1,234.56</code>, day-first vs month-first dates, Debit/Credit vs one signed column, preamble lines, other languages.</li>
     <li>The hard part is the exceptions: a fee deducted from a wire, one transfer paying two invoices, a double charge, two invoices with the same amount.</li>
     <li>A chat assistant can do the arithmetic, but it can also make up a number. In bookkeeping, one invented number costs more than the time it saved.</li>
+    <li><b>Who has this problem:</b> small finance teams closing the month in spreadsheets, and bookkeeping firms doing it for many clients with many bank formats.</li>
   </ul>
 </section>
 
@@ -75,8 +77,9 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
 <section class="s">
   <div class="kicker">Architecture on Vultr</div>
   <h2>One VM is the system of control</h2>
-<img src="img/architecture.png" style="width:86%; border:0; display:block; margin:-10px auto 0">
+<img src="img/architecture.png" style="width:72%; border:0; display:block; margin:-14px auto 0">
   <ul style="margin-top:6px">
+    <li style="font-size:20px"><b>Why Vultr:</b> the VM runs every step, the run state and the approval audit log; Serverless Inference writes the words. No other cloud service, and with the model off no data leaves the VM.</li>
     <li style="font-size:20px">Deployed with one script: <code>deploy/vultr-setup.sh</code> (Docker + Caddy HTTPS on <code>&lt;ip&gt;.sslip.io</code>).</li>
   </ul>
 </section>
@@ -91,7 +94,7 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
   </table>
   <p style="margin-top:26px">"Exact" means every match group, exception, difference and question equals the expected answer.
   The four first-sight failures (headers it did not know, such as <code>Txn Desc</code>, <code>Payments</code> and <code>N° pièce</code>; a year read as an invoice number; two real identical payments flagged as a duplicate; <code>$</code> assumed to be USD) and their fixes are listed in <code>eval/RESULTS.md</code>.
-  An independent code review found 15 more defects, and each is now a regression test. In total, 65 tests cover these cases, including the model inventing a number and the model being down.</p>
+  An independent code review found 15 more defects, and each is now a regression test. In total, 71 tests cover these cases, including the model inventing a number and the model being down.</p>
 </section>
 
 <section class="s">

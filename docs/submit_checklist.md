@@ -10,16 +10,25 @@
 - [ ] 팀 만들기(1인 팀 가능). 프로젝트 이름 `Ledgerline`
 - [ ] Vultr 계정: **Vultr를 써 본 적 없는 이메일**로 가입하고 $200 크레딧 받기(대회 원문 조건). 크레딧 받는 경로는 LabLab 대회 페이지·Discord 안내를 따른다
 - [ ] Vultr 콘솔 → Serverless Inference 켜고 API 키 발급. 키는 VM의 `/opt/ledgerline/.env`에만 둔다(레포·채팅에 붙여 넣지 않기)
-- [ ] GitHub 공개 레포 `dormkim/<이름>` 생성 허락 → Claude가 원격 추가·푸시 (지금은 로컬 커밋만 있음)
+- [x] GitHub 비공개 레포 `dormkim/ledgerline`에 푸시됨. **공개 전환은 11-08 제출 직전**(사용자 몫)
 
-## B. 11-07(토) 오전: 배포
+## B. 11-07(토) 오후(쿠폰 12:45 뒤): 배포
 
-- [ ] Vultr Cloud Compute VM 만들기: Ubuntu 24.04, 가장 작은 요금제로 충분, 서울 또는 가까운 지역
-- [ ] VM에 SSH로 들어가 README "Deploy on a Vultr VM" 세 줄 실행
-      (`vultr-setup.sh <repo-url>` → `.env`에 `LLM_API_KEY` 입력 → `list-vultr-models.sh`로 모델 고르기 → `LLM_MODEL` 입력 → 스크립트 다시 실행)
-- [ ] 브라우저에서 `https://<ip-대시>.sslip.io/healthz`가 `"state":"configured"`, `"vultr_inference":true`인지 확인
+- [ ] Vultr Cloud Compute VM 만들기: Ubuntu 24.04, 1 GB 요금제로 충분, 서울 또는 가까운 지역.
+      **IPv4 주소가 있는 요금제**로 고른다(IPv6만 있는 요금제는 `<ip>.sslip.io` 인증서를 못 받는다, 스크립트가 멈추고 알려 준다).
+      Vultr 방화벽 그룹을 붙였다면 22·80·443을 열어 둔다(안 붙이면 할 일 없음, VM 안의 ufw는 스크립트가 연다)
+- [ ] 레포가 아직 비공개라 VM에서 `curl raw.githubusercontent…`·`git clone`이 **안 된다**. 맥에서 폴더를 복사해 올린다
+      (로컬 `.env`는 안 올라감):
+      `cd ~/Desktop/gmail/vultr-agent-rush-2026 && rsync -a --exclude .env --exclude .git ./ root@<IP>:/opt/ledgerline/`
+      (`rsync`가 없다는 오류면 VM에서 `apt-get install -y rsync` 먼저)
+- [ ] VM에서 `bash /opt/ledgerline/deploy/vultr-setup.sh` → Docker 설치·방화벽·`.env`(권한 600) 만들고 멈춘다
+- [ ] `nano /opt/ledgerline/.env`에 `LLM_API_KEY` → `/opt/ledgerline/deploy/list-vultr-models.sh`로 모델 고르기 → `LLM_MODEL` 입력
+- [ ] `bash /opt/ledgerline/deploy/vultr-setup.sh` 다시 실행 → 빌드·기동 후 `https://<ip-대시>.sslip.io/healthz`가 응답할 때까지 기다렸다가 출력한다.
+      `"state":"configured"`, `"vultr_inference":true`인지 확인. 2분 넘게 안 뜨면 출력된 `docker compose … logs` 명령으로 Caddy 인증서 오류를 본다
+- [ ] 코드를 고친 뒤 다시 올릴 때도 같은 `rsync` + `vultr-setup.sh`(공개 뒤엔 `git pull`이 자동)
 - [ ] 위 URL을 Claude에게 알려 주기 → Claude:
   - 평가 20건을 공개 URL로 실행(`eval.run_eval --url`)해 Vultr Inference 실측치로 `eval/RESULTS.md`·README·장표 숫자 갱신
+    (공개 앱은 주소당 10분에 20회 제한이라 두 세트를 이어 돌리면 429가 난다. 평가 스크립트가 기다렸다 다시 보낸다, 최대 12분 더 걸림)
   - 모델이 JSON을 잘 못 내면 프롬프트·파서 조정
   - LLM 켠 상태로 `docs/img/hero.png`·`shot_summary.png`·표지 다시 찍기, 장표 PDF에 데모 URL 넣어 다시 만들기
   - README 데모 URL 자리 채우기, 커밋·푸시
@@ -51,6 +60,13 @@
 - [ ] VM을 끄지 않는다(심사위원이 URL을 연다). 크레딧이 끝난 뒤에도 쓰려면 Billing에 결제 수단 등록(대회 원문)
 - [ ] 11-09(월) 오전에 `/healthz` 한 번 확인
 - [ ] 수상 시: 상금은 개인에게 SWIFT 해외송금, W-8BEN·신분증·본인 명의 계좌 확인 필요, 미국 TIN 없이는 30% 원천징수, 통지 후 90일 안에 서류(규칙_원문.md "시상")
+
+## 이미 된 것 (Claude, 11-06 저녁 추가)
+
+배포 스크립트를 깨끗한 Ubuntu 24.04 컨테이너에서 끝까지 실행(systemctl·ufw만 흉내): Docker 설치, `.env` 생성 후 멈춤,
+모델 비었으면 멈춤, 빌드·기동, HTTP→HTTPS 리다이렉트, `/healthz` 응답까지 확인. apt 잠금 대기·IPv4 확인·비공개 레포 복사 경로·
+`PUBLIC_HOST` 저장(재부팅·수동 `docker compose` 대비) 추가. 열 지정 답도 값 검사, 다시 실행 뒤 "내가 고른 답" 안내, LLM 꺼짐 배지 정직하게,
+평가 스크립트 429 재시도. 시험 65 → 71. 리뷰 `docs/review_1106_evening.md`.
 
 ## 이미 된 것 (Claude, 11-06)
 

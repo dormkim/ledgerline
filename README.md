@@ -2,10 +2,36 @@
 
 **Vultr Agent Rush Hackathon, Challenge 02 "Powering the Future of Work": Finance & Accounting.**
 
-Every month a bookkeeper lines up the bank statement against the ledger, line by line. Ledgerline does that
-work: it reads two CSV exports in whatever format the bank or accounting tool produced, matches them,
-explains each exception in plain English, and drafts payment reminders for overdue invoices. A person
-approves each reminder before it goes anywhere.
+**Live demo:** `https://<vultr-vm-ip>.sslip.io` (filled in after deployment; `/?demo=1` runs the sample on load) ·
+**Video:** _link_ · **Slides:** [`docs/slides.pdf`](docs/slides.pdf)
+
+**The problem.** Every month someone in finance puts the bank statement next to the ledger and ticks off lines
+one by one. Exports never look the same (`1.234,56` or `1,234.56`, day-first or month-first, Debit/Credit or one
+signed column), and the hard cases are the exceptions: a wire fee taken off a payment, one transfer paying two
+invoices, a double charge. A chat assistant can do this arithmetic, but it can also make up a number.
+
+**Who it is for.** Small finance teams that close the month in spreadsheets, and bookkeeping firms that do it
+for many clients with many bank formats.
+
+**What it does.** Upload two CSV exports. Ledgerline matches them with named rules, explains each exception
+with the evidence behind it, drafts reminders for overdue invoices, and stops to ask when two answers are
+equally likely. A person approves each reminder, and the approval goes to an audit log.
+
+**Why it runs on Vultr.** The whole agent runs on one **Vultr Cloud Compute** VM: reading files, planning the
+steps, matching, the question-and-answer loop, run state and the approval audit log (SQLite on the VM disk).
+The wording comes from **Vultr Serverless Inference** (OpenAI-compatible). There is no other cloud service, and
+with `LLM_DISABLED=1` no data leaves the VM. [Architecture below](#vultr-infrastructure).
+
+![Ledgerline after one click on "Run the sample reconciliation": summary cards, the question it stopped on, exceptions with evidence](docs/img/hero.png)
+
+<sub>Screenshot of a local run with the LLM switched off, so the wording is the code template. On the Vultr deployment the badge names the model and "Vultr Serverless Inference".</sub>
+
+**Try it in 30 seconds:** open the demo URL, pick one of three sample sets (US bank + QuickBooks-style ledger,
+German `;` export with `1.234,56` amounts + Xero-style invoices, UK bank with Paid in / Paid out + Sage-style
+ledger) and click **Run the sample reconciliation**. The summary cards show how many bank lines matched by a
+named rule, how many exceptions are left, what the agent stopped to ask, the overdue invoices and the net
+difference per currency. Answer the question and it re-runs with your answer. **Download results (CSV)** gives
+the same in a spreadsheet.
 
 Three rules run through the design:
 
@@ -16,19 +42,8 @@ Three rules run through the design:
    invented number (a late fee, a total) is rejected and replaced by a template, with the reason.
 3. **When it cannot tell, it asks.** It does not guess on two equally plausible matches, unclear columns,
    or dates that could be day-first or month-first. It stops and asks the user, then re-runs with the answer.
-
-Demo URL: `https://<vultr-vm-ip>.sslip.io` (filled in after deployment; add `/?demo=1` to run the sample on load) ·
-Video: _link_ · Slides: [`docs/slides.pdf`](docs/slides.pdf)
-
-![Ledgerline after one click on "Run the sample reconciliation": summary cards, the question it stopped on, exceptions with evidence](docs/img/hero.png)
-
-<sub>Screenshot of a local run with the LLM switched off, so the wording is the code template. On the Vultr deployment the badge reads "configured · Vultr Serverless Inference".</sub>
-
-**Try it in 30 seconds:** open the demo URL, pick one of three sample sets (US bank + QuickBooks-style ledger,
-German `;` export with `1.234,56` amounts + Xero-style invoices, UK bank with Paid in / Paid out + Sage-style
-ledger) and click **Run the sample reconciliation**. The summary cards show how many bank lines matched by a
-named rule, how many exceptions are left, what the agent stopped to ask, the overdue invoices and the net
-difference per currency. **Download results (CSV)** gives the same in a spreadsheet.
+   The answer is checked too: a column picked as "amount" that holds dates is not used, and the question
+   comes back with the reason.
 
 ---
 
@@ -101,15 +116,19 @@ docker build -t ledgerline .
 docker run -p 8080:8080 --env-file .env --read-only --tmpfs /tmp -v ledgerline-data:/data ledgerline
 ```
 
-Deploy on a Vultr VM (Ubuntu 24.04, smallest plan is enough):
+Deploy on a Vultr VM (Ubuntu 24.04; the 1 GB plan is enough, but pick one **with an IPv4 address**, since the
+HTTPS name `<ip>.sslip.io` needs it):
 
 ```bash
-# on the VM, as root
+# on the VM, as root. Public repo:
 curl -fsSL https://raw.githubusercontent.com/<you>/<repo>/main/deploy/vultr-setup.sh | bash -s -- https://github.com/<you>/<repo>.git
-nano /opt/ledgerline/.env        # LLM_API_KEY = Vultr Serverless Inference key
-/opt/ledgerline/deploy/list-vultr-models.sh   # pick a model id → LLM_MODEL
-bash /opt/ledgerline/deploy/vultr-setup.sh https://github.com/<you>/<repo>.git
-# → https://<ip-with-dashes>.sslip.io
+# Private repo: copy the folder from your machine instead (the local .env stays behind), then run it on the VM:
+#   rsync -a --exclude .env --exclude .git ./ root@<ip>:/opt/ledgerline/ && ssh root@<ip> bash /opt/ledgerline/deploy/vultr-setup.sh
+
+# The first run installs Docker, opens ports 22/80/443, creates /opt/ledgerline/.env (mode 600) and stops.
+nano /opt/ledgerline/.env                      # LLM_API_KEY = Vultr Serverless Inference key
+/opt/ledgerline/deploy/list-vultr-models.sh    # pick a model id, put it in LLM_MODEL
+bash /opt/ledgerline/deploy/vultr-setup.sh     # builds, starts Caddy + app, waits for https://<ip-with-dashes>.sslip.io/healthz
 ```
 
 ## Evaluation
@@ -127,7 +146,7 @@ undecidable dates, meaningless headers and unreadable rows.
 - After the review, three sample sets were added; the UK one exposed a gap: a customer who paid on the due
   date, a month after the invoice, without a reference, stayed unmatched and got a reminder draft. Days are
   now counted from the due date when that is nearer, and the evidence card says so. All 20 cases still pass.
-- 65 tests (`pytest -q`), including LLM-invented numbers being removed and the LLM being down (the app falls
+- 71 tests (`pytest -q`), including LLM-invented numbers being removed and the LLM being down (the app falls
   back to template text and says so).
 
 ## Limits (honest)
