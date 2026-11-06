@@ -1,0 +1,89 @@
+{
+  "description": "Spanish bank export (Fecha/Concepto/Importe/Saldo, semicolon, decimal comma, dot thousands) and French-headed ledger (Date pièce/N° pièce/Tiers/Montant). Bank row 3 (-420,00 'TRANSFERENCIA EMITIDA', no name) sits 2 days from two different -420,00 bills: ambiguous. Two Hotel Miramar receipts 600,00 + 650,00 settle one 1250,00 invoice. Talleres invoice 2026/0431 paid 100,00 short.",
+  "error": false,
+  "questions": [
+    {
+      "kind": "ambiguous_match",
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3,
+        4
+      ]
+    }
+  ],
+  "ambiguous": [
+    {
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3,
+        4
+      ]
+    }
+  ],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        4
+      ],
+      "ledger": [
+        5
+      ]
+    },
+    {
+      "bank": [
+        5,
+        6
+      ],
+      "ledger": [
+        6
+      ],
+      "kind": "split_match"
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "amount_mismatch",
+      "bank": [
+        8
+      ],
+      "ledger": [
+        7
+      ],
+      "difference": "-100.00",
+      "currency": "EUR"
+    },
+    {
+      "kind": "unmatched_bank",
+      "bank": [
+        7
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        8
+      ]
+    }
+  ],
+  "totals": {}
+}

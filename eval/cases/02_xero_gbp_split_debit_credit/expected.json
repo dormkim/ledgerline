@@ -1,0 +1,20 @@
+{
+  "description": "UK bank with separate Debit/Credit columns and ISO dates vs Xero Received/Spent cash book (GBP); one customer transfer pays two invoices, one supplier payment settles two bills, rent cleared exactly 7 days after booking (boundary, inclusive).",
+  "error": false,
+  "questions": [],
+  "matched": [
+    {"bank": [1], "ledger": [1, 2], "kind": "split_match"},
+    {"bank": [2], "ledger": [3]},
+    {"bank": [3], "ledger": [4]},
+    {"bank": [4], "ledger": [5]},
+    {"bank": [5], "ledger": [6]},
+    {"bank": [6], "ledger": [7, 8], "kind": "split_match"},
+    {"bank": [7], "ledger": [9]},
+    {"bank": [8], "ledger": [10]}
+  ],
+  "exceptions": [
+    {"kind": "unmatched_bank", "bank": [9]},
+    {"kind": "unmatched_ledger", "ledger": [11]}
+  ],
+  "totals": {"GBP": {"bank_in": "9841.37", "bank_out": "-7869.23"}}
+}

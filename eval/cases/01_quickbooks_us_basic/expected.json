@@ -1,0 +1,21 @@
+{
+  "description": "Chase-style US bank (MM/DD/YYYY, signed Amount, extra Balance column) vs QuickBooks register; plain 1:1 matches, one bank fee and two open ledger items left over. No currency column, so no totals asserted.",
+  "error": false,
+  "questions": [],
+  "matched": [
+    {"bank": [1], "ledger": [1]},
+    {"bank": [2], "ledger": [2]},
+    {"bank": [3], "ledger": [3]},
+    {"bank": [4], "ledger": [4]},
+    {"bank": [5], "ledger": [5]},
+    {"bank": [6], "ledger": [6]},
+    {"bank": [7], "ledger": [7]},
+    {"bank": [9], "ledger": [8]},
+    {"bank": [10], "ledger": [9]}
+  ],
+  "exceptions": [
+    {"kind": "unmatched_bank", "bank": [8]},
+    {"kind": "unmatched_ledger", "ledger": [10]},
+    {"kind": "unmatched_ledger", "ledger": [11]}
+  ]
+}

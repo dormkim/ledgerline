@@ -1,0 +1,7 @@
+{
+  "description": "Bank file has only a header row and no transactions; the app must return an explicit input error, not an 'all clear' or a list of 5 unmatched ledger lines.",
+  "error": true,
+  "questions": [],
+  "matched": [],
+  "exceptions": []
+}

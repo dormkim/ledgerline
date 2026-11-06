@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledgerline: reconciliation agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+<header>
+  <div class="brand">Ledgerline</div>
+  <div class="tag">Bank reconciliation agent. Code does the math, the model writes the words, every number is checked.</div>
+  <div id="llm" class="badge">LLM: checking…</div>
+</header>
+<main>
+  <section class="card" id="inputs">
+    <h2>1. Upload two exports</h2>
+    <div class="two">
+      <label>Bank statement (CSV)
+        <input type="file" id="bankFile" accept=".csv,.txt,text/csv">
+        <textarea id="bank" placeholder="…or paste CSV here"></textarea>
+      </label>
+      <label>Ledger: invoices, bills or cash book (CSV)
+        <input type="file" id="ledgerFile" accept=".csv,.txt,text/csv">
+        <textarea id="ledger" placeholder="…or paste CSV here"></textarea>
+      </label>
+    </div>
+    <div class="actions">
+      <button id="demo" class="ghost">Load demo data</button>
+      <button id="run">Reconcile</button>
+      <span id="busy" hidden>Working…</span>
+    </div>
+  </section>
+
+  <section class="card" id="error" hidden></section>
+  <section class="card" id="questions" hidden></section>
+
+  <section class="card" id="traceCard" hidden>
+    <h2>2. What the agent did <span id="total" class="muted"></span></h2>
+    <ol id="trace"></ol>
+  </section>
+
+  <section class="card" id="totalsCard" hidden>
+    <h2>3. Totals by currency <span class="muted">(never summed across currencies)</span></h2>
+    <div id="totals"></div>
+  </section>
+
+  <section class="card" id="excCard" hidden>
+    <h2>4. Exceptions to review</h2>
+    <div id="exceptions"></div>
+  </section>
+
+  <section class="card" id="fuCard" hidden>
+    <h2>5. Payment follow-ups <span class="muted">(drafts; a person approves each one)</span></h2>
+    <div id="followups"></div>
+  </section>
+
+  <section class="card" id="matchCard" hidden>
+    <details><summary><h2 class="inline">Matched lines</h2> <span id="matchCount" class="muted"></span></summary>
+      <div id="matches"></div>
+    </details>
+  </section>
+</main>
+<footer>Runs on a Vultr VM · LLM via an OpenAI-compatible endpoint (Vultr Serverless Inference by default) · <a href="/healthz">/healthz</a></footer>
+<script src="/static/app.js"></script>
+</body>
+</html>

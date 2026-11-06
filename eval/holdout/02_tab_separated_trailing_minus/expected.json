@@ -1,0 +1,65 @@
+{
+  "description": "Bank file is tab-separated despite .csv name; money out written with trailing minus ('49.99-'). One bank receipt (1200.00) settles two Brauhaus invoices 700.00 + 500.00. Amazon 89.00 is EUR in bank but USD in ledger, so it must not match.",
+  "error": false,
+  "questions": [],
+  "ambiguous": [],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3
+      ]
+    },
+    {
+      "bank": [
+        4
+      ],
+      "ledger": [
+        4,
+        5
+      ],
+      "kind": "split_match"
+    },
+    {
+      "bank": [
+        6
+      ],
+      "ledger": [
+        6
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "unmatched_bank",
+      "bank": [
+        5
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        7
+      ]
+    }
+  ],
+  "totals": {}
+}

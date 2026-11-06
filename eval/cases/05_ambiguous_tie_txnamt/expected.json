@@ -1,0 +1,21 @@
+{
+  "description": "Unusual headers (Posted/Txn Desc/Txn Amt/Ccy). Bank row 4 '$500 COUNTER DEPOSIT' ties two $500 invoices dated the same day with no name/ref evidence -> ambiguous_match question, not a guess. Two near-ties are resolvable: row 5 by invoice ref INV-5106, row 7 by the closer date (1 day vs 6 days).",
+  "error": false,
+  "questions": ["ambiguous_match"],
+  "ambiguous": [{"bank": [4], "ledger": [4, 5]}],
+  "matched": [
+    {"bank": [1], "ledger": [1]},
+    {"bank": [2], "ledger": [2]},
+    {"bank": [3], "ledger": [3]},
+    {"bank": [5], "ledger": [6]},
+    {"bank": [6], "ledger": [8]},
+    {"bank": [7], "ledger": [10]},
+    {"bank": [9], "ledger": [11]}
+  ],
+  "exceptions": [
+    {"kind": "unmatched_bank", "bank": [8]},
+    {"kind": "unmatched_ledger", "ledger": [7]},
+    {"kind": "unmatched_ledger", "ledger": [9]}
+  ],
+  "totals": {"USD": {"bank_in": "7915.00", "bank_out": "-5392.89"}}
+}

@@ -1,0 +1,66 @@
+{
+  "description": "Bank export has 4 preamble lines (account name, number, period, currency) above the real header. Rows counted from the line after the header. Hooli paid short against INV-1050.",
+  "error": false,
+  "questions": [],
+  "ambiguous": [],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3
+      ]
+    },
+    {
+      "bank": [
+        5
+      ],
+      "ledger": [
+        4
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "amount_mismatch",
+      "bank": [
+        6
+      ],
+      "ledger": [
+        5
+      ],
+      "difference": "-15.00",
+      "currency": "USD"
+    },
+    {
+      "kind": "unmatched_bank",
+      "bank": [
+        4
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        6
+      ]
+    }
+  ],
+  "totals": {}
+}

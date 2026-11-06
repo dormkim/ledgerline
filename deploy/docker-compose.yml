@@ -1,0 +1,29 @@
+# Production layout on one Vultr Cloud Compute VM: Caddy (HTTPS) in front of the agent container.
+# Usage on the VM:  PUBLIC_HOST=<ip-with-dashes>.sslip.io docker compose -f deploy/docker-compose.yml up -d --build
+services:
+  app:
+    build: ..
+    env_file: ../.env            # LLM_BASE_URL / LLM_API_KEY / LLM_MODEL (never committed)
+    environment:
+      # The app port is not published; only Caddy on this private network can reach it and set X-Forwarded-For.
+      FORWARDED_ALLOW_IPS: "*"
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    mem_limit: 512m
+    cpus: 1.0
+    volumes: [ledgerline-data:/data]
+    expose: ["8080"]
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment: [PUBLIC_HOST]
+    command: caddy reverse-proxy --from ${PUBLIC_HOST:?set PUBLIC_HOST} --to app:8080
+    volumes: [caddy-data:/data]
+    depends_on: [app]
+volumes:
+  ledgerline-data:
+  caddy-data:

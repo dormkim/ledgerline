@@ -1,0 +1,72 @@
+{
+  "description": "Bank uses Money In / Money Out columns and DD/MM/YYYY dates (day-first decidable: 13, 17, 21, 28). A vendor refund (money in from Officeworks) matches a positive credit note. Koala pays INV 8812 38 days after the invoice, quoting the invoice number, exact amount.",
+  "error": false,
+  "questions": [],
+  "ambiguous": [],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3
+      ]
+    },
+    {
+      "bank": [
+        4
+      ],
+      "ledger": [
+        4
+      ]
+    },
+    {
+      "bank": [
+        5
+      ],
+      "ledger": [
+        5
+      ]
+    },
+    {
+      "bank": [
+        6
+      ],
+      "ledger": [
+        6
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "unmatched_bank",
+      "bank": [
+        7
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        7
+      ]
+    }
+  ],
+  "totals": {},
+  "notes": "Bank row 1 vs ledger row 1 is outside the 7-day window, but carries the invoice number and the exact amount; a sensible bookkeeper matches it, so it is expected as matched (a strict implementation that leaves both unmatched is defensible under the literal policy). Bank row 7 (990.00, 43 days after INV 8840) has no invoice number, so it stays unmatched on both sides."
+}

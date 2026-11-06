@@ -1,0 +1,5 @@
+line-length = 125
+
+[lint]
+select = ["F", "E", "W", "B"]
+ignore = ["E741", "B905"]

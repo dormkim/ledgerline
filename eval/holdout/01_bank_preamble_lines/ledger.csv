@@ -1,0 +1,7 @@
+Date,Ref,Party,Amount,Currency
+2026-10-01,INV-1041,"Acme Corp.",1250.00,USD
+2026-10-01,BILL-552,"O'Brien Plumbing & Heating",-380.00,USD
+2026-10-04,INV-1045,Globex International,4800.00,USD
+2026-10-09,BILL-560,Staples Inc,-212.37,USD
+2026-10-12,INV-1050,Hooli,990.00,USD
+2026-10-20,INV-1052,Initech LLC,640.00,USD

@@ -1,0 +1,7 @@
+Date,Invoice,Customer,Amount,Currency
+2026-09-30,INV-301,Tanaka Trading,1500.00,USD
+2026-10-02,B-77,Osaka Print Works,-220.00,USD
+2026-10-05,INV-305,Hokkaido Dairy,838.50,USD
+2026-10-08,B-81,Kyoto Textiles,-1240.00,USD
+2026-10-12,INV-309,Nagoya Parts,3120.00,USD
+2026-10-15,INV-311,Sapporo Brew,410.00,USD

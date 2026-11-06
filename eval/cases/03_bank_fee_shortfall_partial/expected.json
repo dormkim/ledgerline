@@ -1,0 +1,20 @@
+{
+  "description": "US bank (MM/DD/YYYY) vs AR/AP ledger (ISO); two incoming wires short by a $15.00 bank fee and one partial payment, all with the same invoice number on both sides -> amount_mismatch (difference = bank - ledger).",
+  "error": false,
+  "questions": [],
+  "matched": [
+    {"bank": [2], "ledger": [2]},
+    {"bank": [3], "ledger": [3]},
+    {"bank": [5], "ledger": [5]},
+    {"bank": [6], "ledger": [6]},
+    {"bank": [8], "ledger": [8]},
+    {"bank": [9], "ledger": [9]}
+  ],
+  "exceptions": [
+    {"kind": "amount_mismatch", "bank": [1], "ledger": [1], "difference": "-15.00", "currency": "USD"},
+    {"kind": "amount_mismatch", "bank": [4], "ledger": [4], "difference": "-3000.00", "currency": "USD"},
+    {"kind": "amount_mismatch", "bank": [7], "ledger": [7], "difference": "-15.00", "currency": "USD"},
+    {"kind": "unmatched_ledger", "ledger": [10]}
+  ],
+  "totals": {"USD": {"bank_in": "26620.00", "bank_out": "-13541.45"}}
+}

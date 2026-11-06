@@ -1,0 +1,21 @@
+{
+  "description": "Australian bank (DD/MM/YYYY, Money In/Money Out, quoted '2,750.00' thousands) vs Xero-style ledger ('01 Oct 2026'); row 6 repeats row 5 exactly -> possible_duplicate; the second Telstra BPAY (row 11) has a different date so it is NOT a duplicate and matches the November bill.",
+  "error": false,
+  "questions": [],
+  "matched": [
+    {"bank": [1], "ledger": [1]},
+    {"bank": [2], "ledger": [2]},
+    {"bank": [3], "ledger": [3]},
+    {"bank": [4], "ledger": [4]},
+    {"bank": [5], "ledger": [5]},
+    {"bank": [7], "ledger": [6]},
+    {"bank": [8], "ledger": [7]},
+    {"bank": [9], "ledger": [8]},
+    {"bank": [11], "ledger": [9]}
+  ],
+  "exceptions": [
+    {"kind": "possible_duplicate", "bank": [6]},
+    {"kind": "unmatched_bank", "bank": [10]},
+    {"kind": "unmatched_ledger", "ledger": [10]}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "description": "Bank headers are col1..col5 with two date-like columns and two signed amount-like columns (neither is a running balance); ledger amounts hit col4 three times and col5 three times, so even trial matching cannot decide -> column_mapping question, no matching performed.",
+  "error": false,
+  "questions": ["column_mapping"],
+  "matched": [],
+  "exceptions": []
+}

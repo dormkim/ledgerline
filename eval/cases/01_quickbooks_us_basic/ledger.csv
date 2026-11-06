@@ -1,0 +1,12 @@
+Date,Transaction Type,Num,Name,Memo/Description,Split,Amount
+09/30/2026,Payment,INV-1042,Acme Corporation,Payment for invoice 1042,Accounts Receivable (A/R),4250.00
+10/02/2026,Expense,,Staples,Office supplies,Office Supplies,-187.43
+10/03/2026,Payment,INV-1043,BlueWave Marketing,,Accounts Receivable (A/R),1980.00
+10/06/2026,Expense,,ADP,Payroll processing fee,Payroll Expenses,-312.50
+10/04/2026,Check,2041,Riverside Property Mgmt,October rent,Rent or Lease,-1500.00
+10/08/2026,Payment,INV-1045,Northwind Traders Ltd.,,Accounts Receivable (A/R),7325.60
+10/12/2026,Bill Payment (Check),,Comcast,Internet Oct,Utilities,-219.99
+10/15/2026,Payment,INV-1047,Globex Inc.,,Accounts Receivable (A/R),3100.00
+10/18/2026,Expense,,Amazon Web Services,Cloud hosting Sep,Software,-842.17
+10/22/2026,Payment,INV-1049,Initech LLC,,Accounts Receivable (A/R),2640.00
+10/16/2026,Check,2042,Hartley Plumbing,Repair,Repairs & Maintenance,-450.00

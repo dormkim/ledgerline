@@ -1,0 +1,13 @@
+{
+  "description": "Every date in both files has both parts <= 12 and rows are not in date order, so day-first vs month-first cannot be decided. The choice changes the result: rows 1, 2, 6 pair only under DD/MM, rows 3, 4, 5 only under MM/DD. Must ask, not guess.",
+  "error": false,
+  "questions": [
+    {
+      "kind": "date_format"
+    }
+  ],
+  "ambiguous": [],
+  "matched": [],
+  "exceptions": [],
+  "totals": {}
+}

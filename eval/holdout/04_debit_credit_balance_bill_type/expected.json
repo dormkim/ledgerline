@@ -1,0 +1,71 @@
+{
+  "description": "Bank has separate Debit/Credit columns plus a running Balance column (must not be read as amount), dates like 'Oct 1, 2026'. Ledger amounts are all positive; Type=Bill means money out, Invoice means money in; dates in ISO datetime. Ledger row 7 is a +540.00 invoice that must not pair with bank row 2 (-540.00 payment).",
+  "error": false,
+  "questions": [],
+  "ambiguous": [],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3
+      ]
+    },
+    {
+      "bank": [
+        4
+      ],
+      "ledger": [
+        4
+      ]
+    },
+    {
+      "bank": [
+        6
+      ],
+      "ledger": [
+        5
+      ]
+    },
+    {
+      "bank": [
+        7
+      ],
+      "ledger": [
+        6
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "unmatched_bank",
+      "bank": [
+        5
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        7
+      ]
+    }
+  ],
+  "totals": {}
+}

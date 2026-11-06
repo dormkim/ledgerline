@@ -1,0 +1,25 @@
+{
+  "description": "Wise multi-currency export (DD-MM-YYYY, per-currency running balance) vs ISO ledger with USD and EUR lines. Traps: USD 500.00 from Lumiere vs ledger EUR 500.00 Lumiere (same day) must NOT match; EUR 980.00 bank matches only the EUR invoice, not the USD 980.00 one. Totals kept per currency.",
+  "error": false,
+  "questions": [],
+  "matched": [
+    {"bank": [1], "ledger": [1]},
+    {"bank": [2], "ledger": [2]},
+    {"bank": [4], "ledger": [4]},
+    {"bank": [5], "ledger": [5]},
+    {"bank": [6], "ledger": [6]},
+    {"bank": [7], "ledger": [7]},
+    {"bank": [9], "ledger": [9]},
+    {"bank": [10], "ledger": [10]}
+  ],
+  "exceptions": [
+    {"kind": "unmatched_bank", "bank": [3]},
+    {"kind": "unmatched_bank", "bank": [8]},
+    {"kind": "unmatched_ledger", "ledger": [3]},
+    {"kind": "unmatched_ledger", "ledger": [8]}
+  ],
+  "totals": {
+    "USD": {"bank_in": "11100.00", "bank_out": "-2090.52"},
+    "EUR": {"bank_in": "4130.00", "bank_out": "-1970.00"}
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "description": "Bank row 3 has amount 'n/a'; ledger row 7 has impossible date '2026-13-40'. Both are reported as unreadable_row, not dropped. Ledger uses Received/Paid columns. The Tim Hortons invoice has no readable bank partner so it is unmatched.",
+  "error": false,
+  "questions": [],
+  "ambiguous": [],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        4
+      ],
+      "ledger": [
+        4
+      ]
+    },
+    {
+      "bank": [
+        5
+      ],
+      "ledger": [
+        5
+      ]
+    },
+    {
+      "bank": [
+        7
+      ],
+      "ledger": [
+        6
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "unreadable_row",
+      "bank": [
+        3
+      ]
+    },
+    {
+      "kind": "unreadable_row",
+      "ledger": [
+        7
+      ]
+    },
+    {
+      "kind": "unmatched_bank",
+      "bank": [
+        6
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        3
+      ]
+    }
+  ],
+  "totals": {}
+}

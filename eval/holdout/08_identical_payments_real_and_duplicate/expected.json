@@ -1,0 +1,80 @@
+{
+  "description": "Two identical WeWork debits (same date, amount, text) are both real because the ledger has two 850.00 WeWork bills; both match. Two identical Blue Bottle charges with only one ledger entry: the later bank line is a possible_duplicate. Two Stripe payouts share text and amount but differ in date, so they are not duplicates and each matches its own ledger payout.",
+  "error": false,
+  "questions": [],
+  "ambiguous": [],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3
+      ]
+    },
+    {
+      "bank": [
+        4
+      ],
+      "ledger": [
+        4
+      ]
+    },
+    {
+      "bank": [
+        6
+      ],
+      "ledger": [
+        5
+      ]
+    },
+    {
+      "bank": [
+        7
+      ],
+      "ledger": [
+        6
+      ]
+    },
+    {
+      "bank": [
+        8
+      ],
+      "ledger": [
+        7
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "possible_duplicate",
+      "bank": [
+        5
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        8
+      ]
+    }
+  ],
+  "totals": {},
+  "notes": "Bank rows 2 and 3 are interchangeable; pairing 2->3 and 3->2 is equally correct. Not an ambiguous_match because both ledger entries are consumed either way."
+}

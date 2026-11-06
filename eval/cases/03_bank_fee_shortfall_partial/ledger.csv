@@ -1,0 +1,11 @@
+Date,Type,Ref,Party,Amount,Currency
+2026-10-01,Invoice,INV-3301,Sunrise Foods Inc.,8500.00,USD
+2026-10-03,Payroll,PR-1003,Gusto,-12450.88,USD
+2026-10-04,Invoice,INV-3302,Pinnacle Roofing Co.,2200.00,USD
+2026-10-07,Invoice,INV-3305,Delta Marine Parts,6000.00,USD
+2026-10-09,Expense,EXP-0412,The Home Depot,-389.12,USD
+2026-10-12,Bill payment,BILL-7781,Pacific Gas & Electric,-611.45,USD
+2026-10-15,Invoice,INV-3307,Cascade Logistics LLC,12000.00,USD
+2026-10-18,Invoice,INV-3308,Lumen Dental Group,950.00,USD
+2026-10-23,Expense,EXP-0419,Intuit QuickBooks,-90.00,USD
+2026-10-25,Invoice,INV-3310,Brightline Events,4400.00,USD

@@ -1,0 +1,19 @@
+{
+  "description": "Canadian bank (DD-Mon-YYYY, Withdrawals/Deposits, unsigned) vs Sage-style Receipts/Payments ledger with a leading 'No' column; two bank e-transfers (1800 + 1200) settle one 3000.00 invoice (many-bank-to-one-ledger split), and one 425.00 transfer settles three invoices (125 + 175 + 125). No currency column, so no totals asserted.",
+  "error": false,
+  "questions": [],
+  "matched": [
+    {"bank": [1, 4], "ledger": [1], "kind": "split_match"},
+    {"bank": [2], "ledger": [2]},
+    {"bank": [3], "ledger": [3]},
+    {"bank": [5], "ledger": [4]},
+    {"bank": [6], "ledger": [5]},
+    {"bank": [7], "ledger": [6]},
+    {"bank": [8], "ledger": [7]},
+    {"bank": [9], "ledger": [8, 9, 10], "kind": "split_match"}
+  ],
+  "exceptions": [
+    {"kind": "unmatched_bank", "bank": [10]},
+    {"kind": "unmatched_ledger", "ledger": [11]}
+  ]
+}

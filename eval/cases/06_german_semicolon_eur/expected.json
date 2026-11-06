@@ -1,0 +1,21 @@
+{
+  "description": "German Sparkasse-style export (';' separator, DD.MM.YYYY, '1.234,56' decimals, Buchungstag/Valuta/Verwendungszweck/Betrag, umlauts) vs English ISO ledger; split payment of two invoices, 3% Skonto deduction with same invoice ref -> amount_mismatch -90.00 EUR.",
+  "error": false,
+  "questions": [],
+  "matched": [
+    {"bank": [1], "ledger": [1]},
+    {"bank": [2], "ledger": [2]},
+    {"bank": [3], "ledger": [3]},
+    {"bank": [4], "ledger": [4, 5], "kind": "split_match"},
+    {"bank": [5], "ledger": [6]},
+    {"bank": [6], "ledger": [7]},
+    {"bank": [7], "ledger": [8]},
+    {"bank": [9], "ledger": [9]}
+  ],
+  "exceptions": [
+    {"kind": "amount_mismatch", "bank": [10], "ledger": [10], "difference": "-90.00", "currency": "EUR"},
+    {"kind": "unmatched_bank", "bank": [8]},
+    {"kind": "unmatched_ledger", "ledger": [11]}
+  ],
+  "totals": {"EUR": {"bank_in": "23074.56", "bank_out": "-6731.00"}}
+}

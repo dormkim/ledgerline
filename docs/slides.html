@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Ledgerline slides</title>
+<style>
+@page { size: 1280px 720px; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1d2433; }
+.s { width: 1280px; height: 720px; padding: 64px 80px; page-break-after: always; position: relative; overflow: hidden; background: #fff; }
+.s:last-child { page-break-after: auto; }
+h1 { font-size: 60px; margin: 0 0 18px; letter-spacing: -1px; }
+h2 { font-size: 40px; margin: 0 0 28px; letter-spacing: -0.5px; }
+p, li { font-size: 24px; line-height: 1.45; }
+li { margin-bottom: 10px; }
+.muted { color: #6b7385; }
+.kicker { color: #0b5cff; font-weight: 700; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.foot { position: absolute; bottom: 28px; left: 80px; right: 80px; font-size: 15px; color: #6b7385; display: flex; justify-content: space-between; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.box { border: 1px solid #e3e6ee; border-radius: 12px; padding: 22px 26px; }
+.box h3 { margin: 0 0 8px; font-size: 24px; }
+.box p { font-size: 20px; margin: 0; }
+img { border: 1px solid #e3e6ee; border-radius: 10px; }
+table { border-collapse: collapse; font-size: 21px; width: 100%; }
+td, th { border-bottom: 1px solid #e3e6ee; padding: 10px 12px; text-align: left; }
+.big { font-size: 64px; font-weight: 800; color: #0b5cff; }
+pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 10px; line-height: 1.5; }
+.title { background: #0f1d3a; color: #fff; }
+.title .muted { color: #b9c3da; }
+</style></head><body>
+
+<section class="s title">
+  <div class="kicker" style="color:#8fb3ff">Vultr Agent Rush · Challenge 02 · Finance &amp; Accounting</div>
+  <h1 style="margin-top:150px">Ledgerline</h1>
+  <p style="font-size:32px">A bank reconciliation agent that does not guess.</p>
+  <p class="muted" style="font-size:24px">The code does the math, the model writes the words, and every number it writes is checked.</p>
+  <div class="foot" style="color:#b9c3da"><span>Runs on Vultr Cloud Compute + Vultr Serverless Inference</span><span>MIT licensed</span></div>
+</section>
+
+<section class="s">
+  <div class="kicker">Problem</div>
+  <h2>Month-end matching is manual, and mistakes are expensive</h2>
+  <ul>
+    <li>Someone in finance puts the bank statement next to the ledger and ticks off lines one by one.</li>
+    <li>Exports never look the same: <code>1.234,56</code> vs <code>1,234.56</code>, day-first vs month-first dates, Debit/Credit vs one signed column, preamble lines, other languages.</li>
+    <li>The hard part is the exceptions: a fee deducted from a wire, one transfer paying two invoices, a double charge, two invoices with the same amount.</li>
+    <li>A chat assistant can do the arithmetic, but it can also make up a number. In bookkeeping, one invented number costs more than the time it saved.</li>
+  </ul>
+</section>
+
+<section class="s">
+  <div class="kicker">Solution</div>
+  <h2>An agent with a fixed rule about who does what</h2>
+  <div class="cols">
+    <div class="box"><h3>Code: every number</h3><p>Column detection, date format, sign convention, matching rules R1 to R4 (reference, amount + date, split payments, short payments), differences, totals per currency, days overdue. All in <code>Decimal</code>, each result tagged with its rule.</p></div>
+    <div class="box"><h3>Model: the words</h3><p>Explains each exception and drafts payment reminders, on Vultr Serverless Inference. A checker removes any sentence whose numbers are not in the evidence, and the UI shows what it removed.</p></div>
+    <div class="box"><h3>Person: the decisions</h3><p>If two candidates are equally likely, a column is unclear or a date could be read both ways, the agent stops and asks. Reminders go out only after a person approves them, and each approval is logged.</p></div>
+    <div class="box"><h3>Nothing hidden</h3><p>Unreadable files raise an error instead of an empty result. Unreadable rows show up as exceptions. If the model is down, template text appears with the reason.</p></div>
+  </div>
+</section>
+
+<section class="s">
+  <div class="kicker">Demo</div>
+  <h2>It asks, then explains with evidence</h2>
+  <div class="cols" style="grid-template-columns: 0.9fr 1.1fr; align-items: start">
+    <div><img src="img/shot_question.png" style="width:100%"><p class="muted" style="font-size:18px">A $750 deposit with no name, and two $750 invoices from the same day. It asks instead of flipping a coin.</p></div>
+    <div><img src="img/shot_evidence.png" style="width:100%"><p class="muted" style="font-size:18px">Delta Freight paid $15.00 less. Code computed the difference and the model wrote the sentence; every number in it is verified.</p></div>
+  </div>
+</section>
+
+<section class="s">
+  <div class="kicker">Architecture on Vultr</div>
+  <h2>One VM is the system of control</h2>
+<pre>browser ──HTTPS──▶ Caddy  (Vultr Cloud Compute VM, :443)
+                     └──▶ ledgerline container  (non-root, read-only FS, no capabilities, 512 MB)
+                            ├─ pipeline: read → columns → dates → sign → match R1-R4 → classify
+                            ├─ SQLite on the VM disk: run history + audit log of approvals
+                            └─ two parallel calls ──▶ Vultr Serverless Inference (OpenAI-compatible)
+                                                       explanations · reminder drafts · column suggestions
+                                                       └─▶ number check ─▶ template fallback</pre>
+  <ul style="margin-top:20px">
+    <li>The API key lives only in the VM's environment and is never logged, returned or stored (a test checks this).</li>
+    <li>Deployed with one script: <code>deploy/vultr-setup.sh</code> (Docker + Caddy HTTPS on <code>&lt;ip&gt;.sslip.io</code>).</li>
+  </ul>
+</section>
+
+<section class="s">
+  <div class="kicker">Evaluation</div>
+  <h2>Tested on 20 file pairs someone else wrote without seeing the code</h2>
+  <table>
+    <tr><th></th><th>First sight</th><th>After fixes</th><th>Full stack (Docker, HTTPS, LLM on)</th></tr>
+    <tr><td>Set 1 (10 cases)</td><td><b>8 / 10</b></td><td>10 / 10</td><td>10 / 10 · median 1.7 s · max 2.2 s</td></tr>
+    <tr><td>Holdout set (10 cases, written after the first fixes)</td><td><b>8 / 10</b></td><td>10 / 10</td><td>10 / 10 · median 1.5 s · max 2.0 s</td></tr>
+  </table>
+  <p style="margin-top:26px">"Exact" means every match group, exception, difference and question equals the expected answer.
+  The four first-sight failures (headers it did not know, such as <code>Txn Desc</code>, <code>Payments</code> and <code>N° pièce</code>; a year read as an invoice number; two real identical payments flagged as a duplicate; <code>$</code> assumed to be USD) and their fixes are listed in <code>eval/RESULTS.md</code>.
+  An independent code review found 15 more defects, and each is now a regression test. In total, 59 tests cover these cases, including the model inventing a number and the model being down.</p>
+</section>
+
+<section class="s">
+  <div class="kicker">Business value</div>
+  <h2>Who pays, and why</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li><b>Small finance teams</b> closing the month with spreadsheets: they review only the exceptions, each with evidence and a next step.</li>
+        <li><b>Bookkeeping firms</b> running many client entities: one tool for every bank format, plus an audit trail of who approved what.</li>
+        <li><b>Collections</b>: overdue invoices turn into reminder drafts the same day the statement arrives.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Revenue model (our hypothesis, not yet tested)</h3>
+      <p>A monthly subscription for each company, priced by the number of bank accounts. Firms get a multi-client plan. Inference cost stays small because the model writes short text and never sees whole ledgers.</p>
+      <h3 style="margin-top:18px">Why now</h3>
+      <p>Hosted open models make the wording step cheap. The missing piece is an agent that finance teams can trust with numbers, and that is the part we built.</p>
+    </div>
+  </div>
+</section>
+
+<section class="s">
+  <div class="kicker">Next</div>
+  <h2>Roadmap</h2>
+  <ul>
+    <li>Bank feeds and PDF statements in addition to CSV. Several accounts and inter-account transfers in one run.</li>
+    <li>Learn each client's recurring patterns, such as the usual wire fee, but only as a suggestion the user confirms.</li>
+    <li>Send approved reminders through the customer's own mail, and write matches back to QuickBooks/Xero.</li>
+    <li>Tighter number checks that tie each number to the field it came from, not just "it appears in the evidence".</li>
+  </ul>
+  <p class="muted" style="margin-top:40px">Code: GitHub (MIT) · Live demo on a Vultr VM · Evaluation data and results are in the repo.</p>
+</section>
+</body></html>

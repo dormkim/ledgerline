@@ -1,0 +1,11 @@
+Date,Ref,Customer/Supplier,Description,Currency,Amount
+2026-09-30,INV-7001,Pioneer Analytics,Invoice,USD,4200.00
+2026-10-01,BILL-3391,Studio Lindqvist AB,Design work,EUR,-1250.00
+2026-10-05,INV-7004,Lumière SARL,Invoice,EUR,500.00
+2026-10-07,EXP-210,GitHub,Team plan,USD,-86.40
+2026-10-08,INV-7005,Fjord Media AS,Invoice,EUR,3150.00
+2026-10-14,EXP-214,Ravi Menon,Contractor retainer Oct,USD,-2000.00
+2026-10-15,INV-7007,Brandt Optik GmbH,Invoice,EUR,980.00
+2026-10-15,INV-7008,Keystone Robotics Corp,Invoice,USD,980.00
+2026-10-22,INV-7010,Keystone Robotics Corp,Invoice,USD,6400.00
+2026-10-27,BILL-3402,Atelier Rossi SRL,Translation,EUR,-720.00

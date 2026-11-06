@@ -1,0 +1,85 @@
+{
+  "description": "Bank amounts are unsigned with a DR/CR column; ledger writes money out in parentheses. Sign trap: bank row 8 is a 45.00 credit (money in) but ledger row 9 is (45.00) money out, so opposite directions must not match.",
+  "error": false,
+  "questions": [],
+  "ambiguous": [],
+  "matched": [
+    {
+      "bank": [
+        1
+      ],
+      "ledger": [
+        1
+      ]
+    },
+    {
+      "bank": [
+        2
+      ],
+      "ledger": [
+        2
+      ]
+    },
+    {
+      "bank": [
+        3
+      ],
+      "ledger": [
+        3
+      ]
+    },
+    {
+      "bank": [
+        4
+      ],
+      "ledger": [
+        4
+      ]
+    },
+    {
+      "bank": [
+        5
+      ],
+      "ledger": [
+        5
+      ]
+    },
+    {
+      "bank": [
+        6
+      ],
+      "ledger": [
+        6
+      ]
+    },
+    {
+      "bank": [
+        7
+      ],
+      "ledger": [
+        7
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "kind": "unmatched_bank",
+      "bank": [
+        8
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        8
+      ]
+    },
+    {
+      "kind": "unmatched_ledger",
+      "ledger": [
+        9
+      ]
+    }
+  ],
+  "totals": {}
+}

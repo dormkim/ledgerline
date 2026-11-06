@@ -1,0 +1,11 @@
+TransferWise ID,Date,Amount,Currency,Description,Payment Reference,Running Balance
+TRANSFER-91000101,01-10-2026,4200.00,USD,Received money from Pioneer Analytics Inc,INV-7001,14200.00
+TRANSFER-91000102,02-10-2026,-1250.00,EUR,Sent money to Studio Lindqvist AB,Bill 3391,3750.00
+TRANSFER-91000103,05-10-2026,500.00,USD,Received money from LUMIERE SARL,,14700.00
+TRANSFER-91000104,07-10-2026,-86.40,USD,Card transaction of 86.40 USD issued by GITHUB.COM,,14613.60
+TRANSFER-91000105,09-10-2026,3150.00,EUR,Received money from Fjord Media AS,INV-7005,6900.00
+TRANSFER-91000106,14-10-2026,-2000.00,USD,Sent money to Ravi Menon,Oct retainer,12613.60
+TRANSFER-91000107,16-10-2026,980.00,EUR,Received money from Brandt Optik GmbH,INV-7007,7880.00
+TRANSFER-91000108,21-10-2026,-4.12,USD,Wise fees,,12609.48
+TRANSFER-91000109,23-10-2026,6400.00,USD,Received money from Keystone Robotics Corp,INV-7010,19009.48
+TRANSFER-91000110,27-10-2026,-720.00,EUR,Sent money to Atelier Rossi SRL,Bill 3402,7160.00

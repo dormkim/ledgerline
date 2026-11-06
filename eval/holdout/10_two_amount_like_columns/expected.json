@@ -1,0 +1,13 @@
+{
+  "description": "Bank headers are generic (Field1..Field5) and two columns look like amounts (Field3, Field4; gross vs net?). Neither is a running balance, and the ledger agrees with Field3 on some rows and Field4 on others, so the amount column cannot be identified. Must ask, not pick the column that maximises matches.",
+  "error": false,
+  "questions": [
+    {
+      "kind": "column_mapping"
+    }
+  ],
+  "ambiguous": [],
+  "matched": [],
+  "exceptions": [],
+  "totals": {}
+}
