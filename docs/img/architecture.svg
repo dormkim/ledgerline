@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1d2433"/>
+    </marker>
+  </defs>
+  <rect width="1120" height="560" fill="#ffffff"/>
+
+  <!-- browser -->
+  <rect x="24" y="200" width="170" height="120" rx="12" fill="#f6f7fb" stroke="#c9cfdc"/>
+  <text x="109" y="240" text-anchor="middle" font-size="18" font-weight="700" fill="#1d2433">Browser</text>
+  <text x="109" y="266" text-anchor="middle" font-size="13" fill="#5b6274">bookkeeper uploads</text>
+  <text x="109" y="284" text-anchor="middle" font-size="13" fill="#5b6274">bank + ledger CSV,</text>
+  <text x="109" y="302" text-anchor="middle" font-size="13" fill="#5b6274">answers, approvals</text>
+
+  <!-- Vultr VM -->
+  <rect x="236" y="40" width="590" height="480" rx="16" fill="#eef4ff" stroke="#0b5cff" stroke-width="2"/>
+  <text x="256" y="72" font-size="18" font-weight="700" fill="#0b5cff">Vultr Cloud Compute VM (Ubuntu 24.04)</text>
+  <text x="256" y="94" font-size="13" fill="#3a4a6b">the central system of control: planning, workflow state, audit log</text>
+
+  <rect x="256" y="200" width="120" height="120" rx="10" fill="#ffffff" stroke="#8fa4cc"/>
+  <text x="316" y="246" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2433">Caddy</text>
+  <text x="316" y="268" text-anchor="middle" font-size="13" fill="#5b6274">HTTPS :443</text>
+  <text x="316" y="286" text-anchor="middle" font-size="13" fill="#5b6274">auto TLS</text>
+
+  <rect x="400" y="116" width="406" height="330" rx="12" fill="#ffffff" stroke="#8fa4cc"/>
+  <text x="418" y="144" font-size="16" font-weight="700" fill="#1d2433">ledgerline container</text>
+  <text x="418" y="164" font-size="12" fill="#5b6274">non-root · read-only FS · no capabilities · 512 MB · 1 CPU</text>
+
+  <g font-size="13" fill="#1d2433">
+    <rect x="418" y="180" width="370" height="30" rx="6" fill="#f6f7fb"/>
+    <text x="430" y="200">1 read files: delimiter, preamble, encoding</text>
+    <rect x="418" y="214" width="370" height="30" rx="6" fill="#f6f7fb"/>
+    <text x="430" y="234">2 map columns (rules, values; LLM only suggests)</text>
+    <rect x="418" y="248" width="370" height="30" rx="6" fill="#f6f7fb"/>
+    <text x="430" y="268">3 normalise dates, money (Decimal), signs</text>
+    <rect x="418" y="282" width="370" height="30" rx="6" fill="#f6f7fb"/>
+    <text x="430" y="302">4 match R1-R4, classify exceptions, follow-ups</text>
+    <rect x="418" y="316" width="370" height="30" rx="6" fill="#fff7e8"/>
+    <text x="430" y="336">5 explain + draft (LLM) then number check</text>
+    <rect x="418" y="350" width="370" height="30" rx="6" fill="#e9f6ee"/>
+    <text x="430" y="370">unsure? stop and ask the person</text>
+  </g>
+  <text x="418" y="408" font-size="12" fill="#5b6274">code computes every number; a sentence whose</text>
+  <text x="418" y="426" font-size="12" fill="#5b6274">number is not in the evidence is removed</text>
+
+  <rect x="400" y="458" width="406" height="46" rx="10" fill="#ffffff" stroke="#8fa4cc"/>
+  <text x="418" y="486" font-size="14" fill="#1d2433"><tspan font-weight="700">SQLite on the VM disk</tspan>  runs (24 h) + audit log</text>
+
+  <!-- Inference -->
+  <rect x="866" y="190" width="230" height="140" rx="12" fill="#fff7e8" stroke="#a55a00" stroke-width="2"/>
+  <text x="981" y="226" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2433">Vultr Serverless</text>
+  <text x="981" y="246" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2433">Inference</text>
+  <text x="981" y="272" text-anchor="middle" font-size="12" fill="#5b6274">OpenAI-compatible API</text>
+  <text x="981" y="290" text-anchor="middle" font-size="12" fill="#5b6274">explanations, reminder drafts,</text>
+  <text x="981" y="308" text-anchor="middle" font-size="12" fill="#5b6274">column suggestions</text>
+
+  <!-- arrows -->
+  <line x1="194" y1="260" x2="252" y2="260" stroke="#1d2433" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="376" y1="260" x2="396" y2="260" stroke="#1d2433" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="788" y1="331" x2="862" y2="290" stroke="#1d2433" stroke-width="2" marker-end="url(#a)" marker-start="url(#a)"/>
+  <text x="866" y="356" font-size="12" fill="#5b6274">2 calls per run, in parallel;</text>
+  <line x1="603" y1="446" x2="603" y2="456" stroke="#1d2433" stroke-width="2" marker-end="url(#a)"/>
+  <text x="866" y="374" font-size="12" fill="#5b6274">key only in the VM's .env,</text>
+  <text x="866" y="392" font-size="12" fill="#5b6274">never logged, returned or stored</text>
+</svg>

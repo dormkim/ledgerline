@@ -17,7 +17,18 @@ Three rules run through the design:
 3. **When it cannot tell, it asks.** It does not guess on two equally plausible matches, unclear columns,
    or dates that could be day-first or month-first. It stops and asks the user, then re-runs with the answer.
 
-Demo URL: `https://<vultr-vm-ip>.sslip.io` (filled in after deployment) · Video: _link_ · Slides: [`docs/slides.pdf`](docs/slides.pdf)
+Demo URL: `https://<vultr-vm-ip>.sslip.io` (filled in after deployment; add `/?demo=1` to run the sample on load) ·
+Video: _link_ · Slides: [`docs/slides.pdf`](docs/slides.pdf)
+
+![Ledgerline after one click on "Run the sample reconciliation": summary cards, the question it stopped on, exceptions with evidence](docs/img/hero.png)
+
+<sub>Screenshot of a local run with the LLM switched off, so the wording is the code template. On the Vultr deployment the badge reads "configured · Vultr Serverless Inference".</sub>
+
+**Try it in 30 seconds:** open the demo URL, pick one of three sample sets (US bank + QuickBooks-style ledger,
+German `;` export with `1.234,56` amounts + Xero-style invoices, UK bank with Paid in / Paid out + Sage-style
+ledger) and click **Run the sample reconciliation**. The summary cards show how many bank lines matched by a
+named rule, how many exceptions are left, what the agent stopped to ask, the overdue invoices and the net
+difference per currency. **Download results (CSV)** gives the same in a spreadsheet.
 
 ---
 
@@ -38,8 +49,10 @@ upload bank.csv + ledger.csv
   → overdue receivables → reminder drafts → human approval → audit log
 ```
 
-The UI shows each step with its duration and decision, totals per currency (never summed across
-currencies), each exception with an **evidence card** (rule, computed facts, source rows), and the drafts.
+The UI opens with summary cards (counted on the server), then the questions, each exception with an
+**evidence card** (rule, computed facts, source rows), the reminder drafts, totals per currency (never summed
+across currencies) and every step with its duration and decision. Results export as CSV, with formula-like
+text cells defused so the file is safe to open in Excel.
 
 ## How this maps to the judging criteria
 
@@ -58,18 +71,15 @@ currencies), each exception with an **evidence card** (rule, computed facts, sou
 | **VM disk** (Docker volume `/data`) | SQLite run history + audit log of approvals (`app/store.py`). |
 | **Vultr Serverless Inference** | LLM for column suggestions, explanations and reminder drafts, via `https://api.vultrinference.com/v1/chat/completions`. |
 
-```
- browser ──HTTPS──▶ Caddy (Vultr VM :443) ──▶ ledgerline container (:8080, read-only FS, non-root, 512 MB)
-                                                 ├─ pipeline: read → columns → normalise → match → classify
-                                                 ├─ SQLite /data: runs + audit log
-                                                 └─ HTTPS ─▶ Vultr Serverless Inference (OpenAI-compatible)
-```
+![Architecture: browser to Caddy on a Vultr Cloud Compute VM, the ledgerline container with the pipeline and SQLite, and Vultr Serverless Inference for wording](docs/img/architecture.svg)
 
 The container runs as a non-root user with a read-only filesystem, all capabilities dropped and memory/CPU
 limits (`deploy/docker-compose.yml`). The API key is only read from the environment. It is never logged,
 returned by `/healthz` or stored (`tests/test_api.py` checks this). Runs are stored under unguessable IDs,
 there is no listing endpoint, and runs are deleted after 24 hours, because they contain uploaded financial
-rows. Each client is limited to 20 runs per 10 minutes to protect inference credits. The client address
+rows. Each client is limited to 20 runs per 10 minutes to protect inference credits. The UI has no inline
+script, so the server sends a strict Content-Security-Policy, and run responses are marked `no-store`.
+Each reminder draft can be approved once; a second approval is refused (409) so the audit log has one decision per draft. The client address
 comes from the TCP peer, or from Caddy, which is the only proxy trusted to set it.
 
 ## Run it
@@ -80,7 +90,7 @@ Local (Python 3.12):
 pip install -r requirements-dev.txt
 cp .env.example .env            # set LLM_API_KEY and LLM_MODEL, or LLM_DISABLED=1 for code-only text
 set -a; . ./.env; set +a
-uvicorn app.main:app --port 8080   # open http://127.0.0.1:8080, click "Load demo data", then "Reconcile"
+uvicorn app.main:app --port 8080   # open http://127.0.0.1:8080 and click "Run the sample reconciliation"
 pytest -q
 ```
 
@@ -114,19 +124,26 @@ undecidable dates, meaningless headers and unreadable rows.
   1.5–1.7 s, and at most 2.2 s.
 - An independent code review found 15 more defects (sign parsing, thousands separators, a spoofable rate
   limit, crash paths and others). All are fixed and each has a regression test.
-- 59 tests (`pytest -q`), including LLM-invented numbers being removed and the LLM being down (the app falls
+- After the review, three sample sets were added; the UK one exposed a gap: a customer who paid on the due
+  date, a month after the invoice, without a reference, stayed unmatched and got a reminder draft. Days are
+  now counted from the due date when that is nearer, and the evidence card says so. All 20 cases still pass.
+- 65 tests (`pytest -q`), including LLM-invented numbers being removed and the LLM being down (the app falls
   back to template text and says so).
 
 ## Limits (honest)
 
 - CSV only (no PDF statements, no bank API). One bank account per run.
-- Matching tolerances are fixed: 7-day window, or 45 days when the invoice number appears on the bank line.
+- Matching tolerances are fixed: 7-day window (from the invoice date or the due date, whichever is nearer), or 45 days when the invoice number appears on the bank line.
   A fee rule applies for differences within 2% or 50 units, and needs payee evidence.
 - Reminder approval records the decision in the audit log. Sending email is not wired up in this demo.
 - The number checker ties money next to a currency to the evidence's money fields, and allows a percentage
   only if the evidence states it. Other numbers only have to appear somewhere in the evidence, so a real day
   count used in the wrong place can still pass. Numbers written as words are not checked; reminder drafts
   that mention fees, interest or penalties are rejected outright.
+- What the model sees: the rows of each exception (dates, amounts, names, references, descriptions) and the
+  overdue invoices, plus the headers and first 6 rows of a file whose columns are unclear. Whole files are not sent. With
+  `LLM_DISABLED=1` nothing leaves the VM. A description in an uploaded file could try to steer the reminder
+  wording; numbers and fee words are checked and a person approves each draft, but links are not filtered.
 - Files are limited to 1,500 rows each. Uploaded rows are deleted after 24 hours (`RETENTION_HOURS`).
 
 ## Repository layout
@@ -135,12 +152,12 @@ undecidable dates, meaningless headers and unreadable rows.
 app/            pipeline.py (workflow + trace) · table.py · columns.py · values.py · reader.py
                 matcher.py (R1–R4) · reconcile.py (duplicates, exceptions, totals, follow-ups)
                 llm.py (OpenAI-compatible client) · llm_columns.py · narrate.py · numcheck.py
-                store.py (SQLite) · main.py (FastAPI) · static/ (UI, no build step)
-samples/        demo bank + ledger
+                store.py (SQLite) · export.py (CSV) · main.py (FastAPI) · static/ (UI, no build step)
+samples/        three demo sets: us_quickbooks/ · de_bank_semicolon/ · uk_bank_paid_in_out/ (made-up data)
 eval/           blind cases (cases/, holdout/), run_eval.py, RESULTS.md
 tests/          pytest
 deploy/         docker-compose.yml (app + Caddy), vultr-setup.sh, list-vultr-models.sh
-docs/           slides, demo script
+docs/           slides (html + pdf), cover image, demo script, review notes, submission checklist
 ```
 
 License: MIT.

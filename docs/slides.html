@@ -57,6 +57,13 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
 </section>
 
 <section class="s">
+  <div class="kicker">Product</div>
+  <h2>One click, and the reviewer sees only what needs a person</h2>
+  <img src="img/shot_summary.png" style="width:100%; max-height:430px; object-fit:contain">
+  <p class="muted" style="font-size:19px; margin-top:12px">Summary cards counted by code: lines matched by a named rule, exceptions to review, questions it stopped on, overdue invoices and the net difference per currency. Results download as a CSV. Three sample sets (US, German, UK exports) run from the first screen.</p>
+</section>
+
+<section class="s">
   <div class="kicker">Demo</div>
   <h2>It asks, then explains with evidence</h2>
   <div class="cols" style="grid-template-columns: 0.9fr 1.1fr; align-items: start">
@@ -68,16 +75,9 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
 <section class="s">
   <div class="kicker">Architecture on Vultr</div>
   <h2>One VM is the system of control</h2>
-<pre>browser ──HTTPS──▶ Caddy  (Vultr Cloud Compute VM, :443)
-                     └──▶ ledgerline container  (non-root, read-only FS, no capabilities, 512 MB)
-                            ├─ pipeline: read → columns → dates → sign → match R1-R4 → classify
-                            ├─ SQLite on the VM disk: run history + audit log of approvals
-                            └─ two parallel calls ──▶ Vultr Serverless Inference (OpenAI-compatible)
-                                                       explanations · reminder drafts · column suggestions
-                                                       └─▶ number check ─▶ template fallback</pre>
-  <ul style="margin-top:20px">
-    <li>The API key lives only in the VM's environment and is never logged, returned or stored (a test checks this).</li>
-    <li>Deployed with one script: <code>deploy/vultr-setup.sh</code> (Docker + Caddy HTTPS on <code>&lt;ip&gt;.sslip.io</code>).</li>
+<img src="img/architecture.png" style="width:86%; border:0; display:block; margin:-10px auto 0">
+  <ul style="margin-top:6px">
+    <li style="font-size:20px">Deployed with one script: <code>deploy/vultr-setup.sh</code> (Docker + Caddy HTTPS on <code>&lt;ip&gt;.sslip.io</code>).</li>
   </ul>
 </section>
 
@@ -91,19 +91,23 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
   </table>
   <p style="margin-top:26px">"Exact" means every match group, exception, difference and question equals the expected answer.
   The four first-sight failures (headers it did not know, such as <code>Txn Desc</code>, <code>Payments</code> and <code>N° pièce</code>; a year read as an invoice number; two real identical payments flagged as a duplicate; <code>$</code> assumed to be USD) and their fixes are listed in <code>eval/RESULTS.md</code>.
-  An independent code review found 15 more defects, and each is now a regression test. In total, 59 tests cover these cases, including the model inventing a number and the model being down.</p>
+  An independent code review found 15 more defects, and each is now a regression test. In total, 65 tests cover these cases, including the model inventing a number and the model being down.</p>
 </section>
 
 <section class="s">
   <div class="kicker">Business value</div>
   <h2>Who pays, and why</h2>
-  <div class="cols">
+  <div class="cols" style="align-items:start">
     <div>
+      <div class="box" style="margin-bottom:16px">
+        <h3>The work exists today (sourced)</h3>
+        <p>In the US alone, bookkeeping, accounting and auditing clerks held about 1.5 million jobs in 2025, with a median wage of $50,670 (May 2025). Their listed duties include "Reconcile or note and report any differences they find in the records." Employment is projected to decline 6% from 2025 to 2035.</p>
+        <p class="muted" style="font-size:14px; margin-top:6px">Source: U.S. Bureau of Labor Statistics, Occupational Outlook Handbook, Bookkeeping, Accounting, and Auditing Clerks (read 2026-11-06).</p>
+      </div>
       <ul>
-        <li><b>Small finance teams</b> closing the month with spreadsheets: they review only the exceptions, each with evidence and a next step.</li>
-        <li><b>Bookkeeping firms</b> running many client entities: one tool for every bank format, plus an audit trail of who approved what.</li>
-        <li><b>Collections</b>: overdue invoices turn into reminder drafts the same day the statement arrives.</li>
-      </ul>
+        <li style="font-size:20px"><b>Small finance teams</b> closing the month with spreadsheets: they review only the exceptions, each with evidence and a next step.</li>
+        <li style="font-size:20px"><b>Bookkeeping firms</b> running many client entities: one tool for every bank format, plus an audit trail of who approved what.</li>
+              </ul>
     </div>
     <div class="box">
       <h3>Revenue model (our hypothesis, not yet tested)</h3>
@@ -121,6 +125,7 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
     <li>Bank feeds and PDF statements in addition to CSV. Several accounts and inter-account transfers in one run.</li>
     <li>Learn each client's recurring patterns, such as the usual wire fee, but only as a suggestion the user confirms.</li>
     <li>Send approved reminders through the customer's own mail, and write matches back to QuickBooks/Xero.</li>
+    <li>Measure the claim we have not measured yet: time a real month-end close with and without Ledgerline at a small bookkeeping firm.</li>
     <li>Tighter number checks that tie each number to the field it came from, not just "it appears in the evidence".</li>
   </ul>
   <p class="muted" style="margin-top:40px">Code: GitHub (MIT) · Live demo on a Vultr VM · Evaluation data and results are in the repo.</p>

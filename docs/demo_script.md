@@ -17,14 +17,15 @@ this work. It does the math in code and never guesses."
 "Here are two real-world-style exports: a bank statement with USD and EUR lines, and a QuickBooks-style
 ledger with invoices and bills."
 
-*Click "Load demo data". Scroll the two text boxes briefly. Click "Reconcile".*
+*Keep the first sample set selected and click "Run the sample reconciliation". Open "Or reconcile your own two CSV exports" for a second to show the two files.*
 
 **0:35 to 1:05. The agent's steps**
-"In about two seconds it read both files, worked out which column is which, decided the date format from
+"The cards at the top are the answer: six of twelve bank lines matched by a named rule, eight exceptions to
+review, one question, two overdue invoices. In about two seconds it read both files, worked out which column is which, decided the date format from
 the data, picked the ledger's sign convention by checking which one agrees with the bank, and matched the
 lines with four named rules. Every step is listed here with its timing."
 
-*Point at the step list: map columns, choose ledger sign, match by_rule (R1, R2, R3 split), the LLM step's ms.*
+*Point at the summary cards, then scroll to "What the agent did" and point at the step list: map columns, choose ledger sign, match by_rule (R1, R2, R3 split), the LLM step's ms.*
 
 **1:05 to 1:25. It asks instead of guessing**
 "One bank deposit of 750 dollars has no name and no reference, and two invoices of exactly 750 were
