@@ -18,7 +18,7 @@ input[type=file] { margin-top: 6px; font-weight: 400; }
 button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
 button.ghost { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
 button:disabled { opacity: .55; cursor: default; }
-.muted { color: var(--muted); font-weight: 400; font-size: 13px; }
+.muted { color: #5b6274; font-weight: 400; font-size: 13px; }
 ol#trace { padding-left: 20px; margin: 0; } ol#trace li { margin: 6px 0; }
 .detail { color: var(--muted); font-size: 12px; word-break: break-word; }
 .pill { font-size: 11px; text-transform: uppercase; padding: 1px 7px; border-radius: 4px; background: #e3f4ea; color: var(--ok); }
@@ -38,3 +38,45 @@ pre { background: #f7f8fa; border-radius: 6px; padding: 8px; font-size: 12px; wh
 .removed { color: var(--bad); font-size: 13px; }
 select { margin: 0 12px 6px 4px; }
 footer { text-align: center; color: var(--muted); font-size: 12px; padding: 20px; }
+/* 2026-11-06: hero, summary cards, accessibility, small screens */
+.hero { padding: 26px 4px 10px; }
+.hero h1 { font-size: 28px; line-height: 1.25; letter-spacing: -0.4px; margin: 0 0 10px; max-width: 900px; }
+.lead { font-size: 16px; max-width: 900px; margin: 0 0 16px; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cta select { margin: 0; padding: 9px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; max-width: 100%; }
+.inline-label { display: inline; font-weight: 600; }
+button.big { padding: 11px 20px; font-size: 16px; }
+.small { font-size: 12px; margin-top: 8px; }
+.busy { color: var(--accent); font-weight: 600; margin: 10px 0 0; }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat { background: #fff; border: 1px solid var(--line); border-top: 4px solid #8792a8; border-radius: 10px; padding: 12px 14px; }
+.stat.ok { border-top-color: var(--ok); } .stat.warn { border-top-color: var(--warn); } .stat.ask { border-top-color: var(--accent); }
+.stat-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+.stat-big { font-size: 30px; font-weight: 800; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.stat-big .of { font-size: 16px; font-weight: 600; color: var(--muted); }
+.stat-big .money { font-size: 18px; font-weight: 700; }
+.stat-sub { font-size: 12px; color: var(--muted); }
+.row-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.row-head h2 { margin: 0; }
+a.button { display: inline-block; text-decoration: none; border-radius: 6px; padding: 7px 14px; font-weight: 600; font-size: 14px; }
+a.button.ghost { color: var(--accent); border: 1px solid var(--accent); background: #fff; }
+.error { border-left: 4px solid var(--bad); }
+.scroll { overflow-x: auto; }
+dl.facts { display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 13px; margin: 8px 0; }
+dl.facts dt { color: var(--muted); } dl.facts dd { margin: 0; font-variant-numeric: tabular-nums; }
+fieldset.q { min-width: 0; } fieldset.q legend { font-weight: 600; padding: 0 4px; }
+label.inline { display: inline-block; font-weight: 400; margin-right: 12px; }
+label.opt { display: block; font-weight: 400; margin: 6px 0; cursor: pointer; }
+input[type=radio] { width: 18px; height: 18px; vertical-align: -3px; }
+summary { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+#results:focus { outline: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; } .skip:focus { left: 10px; top: 10px; background: #fff; padding: 6px 10px; z-index: 9; }
+#inputs label { margin-top: 6px; }
+@media (max-width: 760px) {
+  header { padding: 12px 16px; } main { padding: 12px; }
+  .hero h1 { font-size: 22px; } .card { padding: 14px; }
+  .cta { flex-direction: column; align-items: stretch; } button.big { width: 100%; }
+  .stat-big { font-size: 24px; }
+}

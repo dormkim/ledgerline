@@ -183,6 +183,7 @@ def _reconcile(parsed, orders, answers, tr, use_llm: bool) -> dict:
                  for a in res.ambiguous]
     return {"status": "needs_input" if questions else "done", "questions": questions,
             "totals": reconcile.totals(bank, ledger, res),
+            "overview": reconcile.overview(bank, ledger, res, excs, fus, len(questions)),
             "matches": [reconcile.summary(m) for m in res.matches], "exceptions": excs, "followups": fus,
             "unreadable_rows": {s: sh.bad_rows for s, sh in sheets.items()},
             "columns": {s: {"mapping": sh.mapping, "how": sh.how, "date_order": sh.date_order,

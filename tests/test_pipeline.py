@@ -3,8 +3,8 @@ from pathlib import Path
 from app import narrate, pipeline
 
 ROOT = Path(__file__).resolve().parents[1]
-BANK = (ROOT / "samples/bank.csv").read_text()
-LEDGER = (ROOT / "samples/ledger.csv").read_text()
+BANK = (ROOT / "samples/us_quickbooks/bank.csv").read_text()
+LEDGER = (ROOT / "samples/us_quickbooks/ledger.csv").read_text()
 
 
 def _rules(r):

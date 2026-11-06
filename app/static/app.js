@@ -1,4 +1,5 @@
-// Ledgerline UI. Plain JS, no build step. All numbers shown come from the server's code path.
+// Ledgerline UI. Plain JS, no build step, no inline handlers (the server sends a strict CSP).
+// Every number shown comes from the server's code path; the browser only formats and lays out.
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const state = { answers: {}, runId: null };
@@ -7,6 +8,12 @@ const KIND = {
   amount_mismatch: "Amount differs", possible_duplicate: "Possible duplicate", unmatched_bank: "Bank line without ledger entry",
   unmatched_ledger: "Ledger entry without bank line", unreadable_row: "Unreadable row",
 };
+const KIND_SHORT = {
+  amount_mismatch: "amount differs", possible_duplicate: "possible duplicate", unmatched_bank: "bank only",
+  unmatched_ledger: "ledger only", unreadable_row: "unreadable",
+};
+const TOTAL_LABEL = { bank_in: "Bank in", bank_out: "Bank out", ledger_in: "Ledger in", ledger_out: "Ledger out",
+  matched_bank: "Matched (bank, net)", net_difference: "Net difference (bank minus ledger)" };
 
 async function health() {
   try {
@@ -17,24 +24,44 @@ async function health() {
   } catch { $("llm").textContent = "LLM: status unknown"; }
 }
 
+async function loadSamples() {
+  try {
+    const sets = await (await fetch("/api/samples")).json();
+    $("sampleSet").innerHTML = sets.map((s) => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join("");
+    const want = new URLSearchParams(location.search).get("set");
+    if (want && sets.some((s) => s.id === want)) $("sampleSet").value = want;
+  } catch { /* keep the default option */ }
+}
+
 function readFile(input, target) {
   input.addEventListener("change", async () => { if (input.files[0]) $(target).value = await input.files[0].text(); });
 }
 
 async function loadDemo() {
-  const d = await (await fetch("/api/demo")).json();
+  const d = await (await fetch(`/api/demo?set=${encodeURIComponent($("sampleSet").value)}`)).json();
   $("bank").value = d.bank_csv; $("ledger").value = d.ledger_csv; state.answers = {};
+}
+
+async function tryDemo() {
+  $("tryDemo").disabled = true;
+  try { await loadDemo(); await run(true); } finally { $("tryDemo").disabled = false; }
 }
 
 async function run(fresh = true) {
   if (fresh) state.answers = {};
+  if (!$("bank").value.trim() || !$("ledger").value.trim()) {
+    $("uploadBox").open = true;
+    return showError("Add both files first: a bank statement and a ledger (or run the sample).");
+  }
   $("busy").hidden = false; $("run").disabled = true;
   try {
     const res = await fetch("/api/runs", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bank_csv: $("bank").value, ledger_csv: $("ledger").value, answers: state.answers, parent: fresh ? null : state.runId }) });
-    const r = await res.json();
+    const r = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }));
     if (!res.ok) throw new Error(typeof r.detail === "string" ? r.detail : (r.detail || []).map((d) => d.msg).join("; ") || `HTTP ${res.status}`);
     state.runId = r.id; render(r);
+    $("results").focus({ preventScroll: true });
+    $("results").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e) { showError(String(e.message || e)); }
   finally { $("busy").hidden = true; $("run").disabled = false; }
 }
@@ -42,19 +69,38 @@ async function run(fresh = true) {
 function showError(msg) { $("error").hidden = false; $("error").innerHTML = `<h2>Could not reconcile</h2><p>${esc(msg)}</p>`; }
 
 function render(r) {
-  ["error", "questions", "totalsCard", "excCard", "fuCard", "matchCard"].forEach((id) => ($(id).hidden = true));
+  ["error", "summary", "questions", "totalsCard", "excCard", "fuCard", "matchCard"].forEach((id) => ($(id).hidden = true));
   $("traceCard").hidden = false;
   $("total").textContent = `· ${r.total_ms} ms total · run ${r.id}`;
   $("trace").innerHTML = r.trace.map(stepHtml).join("");
   if (r.status === "error") return showError(r.error);
   if (r.questions?.length) renderQuestions(r.questions);
   if (!r.totals) return;
+  $("summary").hidden = false; $("summary").innerHTML = summaryHtml(r);
   $("totalsCard").hidden = false; $("totals").innerHTML = totalsHtml(r.totals);
   $("excCard").hidden = false;
+  $("exportLink").href = `/api/runs/${encodeURIComponent(r.id)}/export.csv`;
   $("exceptions").innerHTML = r.exceptions.length ? r.exceptions.map(excHtml).join("") : "<p>No exceptions.</p>";
   if (r.followups.length) { $("fuCard").hidden = false; $("followups").innerHTML = r.followups.map(fuHtml).join(""); }
   $("matchCard").hidden = false; $("matchCount").textContent = `(${r.matches.length})`;
   $("matches").innerHTML = matchesHtml(r.matches);
+}
+
+function card(label, big, sub, tone = "") {
+  return `<div class="stat ${tone}"><div class="stat-label">${esc(label)}</div><div class="stat-big">${big}</div><div class="stat-sub">${sub}</div></div>`;
+}
+
+function summaryHtml(r) {
+  const o = r.overview;
+  const kinds = Object.entries(o.exceptions_by_kind).map(([k, n]) => `${n} ${esc(KIND_SHORT[k] || k)}`).join(" · ") || "none";
+  const overdue = Object.entries(o.overdue_by_currency).map(([c, v]) => `${esc(v)} ${esc(c)}`).join(" + ") || "none";
+  const diffs = Object.entries(r.totals).map(([c, v]) => `${esc(v.net_difference)} ${esc(c)}`).join("<br>");
+  return card("Matched automatically", `${o.matched_bank_lines} <span class="of">of ${o.bank_lines}</span>`,
+      `bank lines, in ${o.match_groups} matches with a named rule`, "ok") +
+    card("To review", `${o.exceptions}`, kinds, o.exceptions ? "warn" : "ok") +
+    card("Questions for you", `${o.questions}`, o.questions ? "it stopped instead of guessing (below)" : "nothing ambiguous", o.questions ? "ask" : "") +
+    card("Overdue invoices", `${o.followups}`, `reminder drafts · ${overdue}`, o.followups ? "warn" : "") +
+    card("Net difference", `<span class="money">${diffs}</span>`, "bank minus ledger, per currency");
 }
 
 function stepHtml(s) {
@@ -65,9 +111,9 @@ function stepHtml(s) {
 }
 
 function totalsHtml(t) {
-  const keys = ["bank_in", "bank_out", "ledger_in", "ledger_out", "matched_bank", "net_difference"];
-  return `<table><tr><th>Currency</th>${keys.map((k) => `<th>${k.replace("_", " ")}</th>`).join("")}</tr>` +
-    Object.entries(t).map(([c, v]) => `<tr><td><b>${esc(c)}</b></td>${keys.map((k) => `<td class="num">${esc(v[k])}</td>`).join("")}</tr>`).join("") + "</table>";
+  const keys = Object.keys(TOTAL_LABEL);
+  return `<table><thead><tr><th scope="col">Currency</th>${keys.map((k) => `<th scope="col" class="num">${TOTAL_LABEL[k]}</th>`).join("")}</tr></thead><tbody>` +
+    Object.entries(t).map(([c, v]) => `<tr><th scope="row">${esc(c)}</th>${keys.map((k) => `<td class="num">${esc(v[k])}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
 }
 
 function source(n) {
@@ -78,67 +124,78 @@ function source(n) {
 
 function rowsTable(cards) {
   if (!cards.length) return "";
-  return `<table class="rows"><tr><th>side</th><th>row</th><th>date</th><th>amount</th><th>ccy</th><th>name / text</th><th>ref</th></tr>` +
+  return `<div class="scroll"><table class="rows"><thead><tr><th>side</th><th>row</th><th>date</th><th class="num">amount</th><th>ccy</th><th>name / text</th><th>ref</th></tr></thead><tbody>` +
     cards.map((c) => c.raw ? `<tr><td>${esc(c.side)}</td><td>${c.row}</td><td colspan="5">${esc(JSON.stringify(c.raw))}</td></tr>` :
-      `<tr><td>${esc(c.side)}</td><td>${c.row}</td><td>${esc(c.date)}</td><td class="num">${esc(c.amount)}</td><td>${esc(c.currency)}</td><td>${esc(c.name || c.desc)}</td><td>${esc(c.ref)}</td></tr>`).join("") + "</table>";
+      `<tr><td>${esc(c.side)}</td><td>${c.row}</td><td>${esc(c.date)}</td><td class="num">${esc(c.amount)}</td><td>${esc(c.currency)}</td><td>${esc(c.name || c.desc)}</td><td>${esc(c.ref)}</td></tr>`).join("") + "</tbody></table></div>";
+}
+
+const FACT_LABEL = { bank_amount: "Bank amount", ledger_amount: "Ledger amount", difference: "Difference (code)", basis: "Paired by",
+  shared_ref: "Shared reference", days_apart: "Days apart", days_counted_from: "Days counted from", duplicate_of_row: "Same as bank row",
+  amount: "Amount", currency: "Currency", name_score: "Name similarity", row: "Row" };
+
+function factsHtml(f) {
+  return `<dl class="facts">${Object.entries(f).filter(([, v]) => v !== null && v !== undefined)
+    .map(([k, v]) => `<dt>${esc(FACT_LABEL[k] || k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`;
 }
 
 function excHtml(e) {
   const n = e.narrative;
-  return `<div class="exc ${esc(e.kind)}"><div class="head"><span class="kind">${esc(KIND[e.kind] || e.kind)}</span> <span class="muted">${esc(e.id)}</span> ${source(n)}</div>
+  return `<article class="exc ${esc(e.kind)}"><div class="head"><span class="kind">${esc(KIND[e.kind] || e.kind)}</span> <span class="muted">${esc(e.id)}</span> ${source(n)}</div>
     <p>${esc(n.text)}</p><p class="next">Next: ${esc(n.next_step)}</p>
     <details><summary>Evidence card</summary><div class="muted">Rule: ${esc(e.rule)}</div>
-      <pre>${esc(JSON.stringify(e.facts, null, 1))}</pre>${rowsTable([...e.bank, ...e.ledger])}
+      ${factsHtml(e.facts)}${rowsTable([...e.bank, ...e.ledger])}
       ${n.removed?.length ? `<div class="removed">Removed LLM sentences (number not in evidence):<ul>${n.removed.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
-    </details></div>`;
+    </details></article>`;
 }
 
 function fuHtml(f) {
   const d = f.draft;
-  return `<div class="fu" id="fu-${esc(f.id)}"><div class="head"><b>${esc(f.counterparty)}</b> · ${esc(f.amount)} ${esc(f.currency)} · ${f.days_overdue} days overdue
+  const label = f.status === "draft" ? "Approve draft" : esc(f.status);
+  return `<article class="fu" id="fu-${esc(f.id)}"><div class="head"><b>${esc(f.counterparty)}</b> · ${esc(f.amount)} ${esc(f.currency)} · ${f.days_overdue} days overdue
     <span class="muted">(due ${esc(f.due)} from ${esc(f.due_source)}, as of ${esc(f.as_of)})</span> ${source(d)}</div>
     <div class="mail"><div><b>Subject:</b> ${esc(d.subject)}</div><pre>${esc(d.body)}</pre></div>
-    <button onclick="approve('${esc(f.id)}')" ${f.status !== "draft" ? "disabled" : ""}>${f.status === "draft" ? "Approve draft" : esc(f.status)}</button></div>`;
+    <button data-approve="${esc(f.id)}" ${f.status !== "draft" ? "disabled" : ""}>${label}</button></article>`;
 }
 
-async function approve(fid) {
-  const r = await (await fetch(`/api/runs/${state.runId}/followups/${fid}/approve`, { method: "POST" })).json();
-  const btn = document.querySelector(`#fu-${fid} button`); btn.disabled = true; btn.textContent = r.followup.status;
+async function approve(btn) {
+  btn.disabled = true;
+  const res = await fetch(`/api/runs/${encodeURIComponent(state.runId)}/followups/${encodeURIComponent(btn.dataset.approve)}/approve`, { method: "POST" });
+  const r = await res.json().catch(() => ({}));
+  btn.textContent = res.ok ? r.followup.status : (r.detail || `HTTP ${res.status}`);
 }
 
 function matchesHtml(ms) {
-  return `<table><tr><th>rule</th><th>bank rows</th><th>ledger rows</th><th>amount</th><th>evidence</th></tr>` + ms.map((m) =>
+  return `<table><thead><tr><th>rule</th><th>bank rows</th><th>ledger rows</th><th class="num">amount</th><th>evidence</th></tr></thead><tbody>` + ms.map((m) =>
     `<tr><td>${esc(m.rule)}</td><td>${m.bank.map((b) => b.row).join(", ")}</td><td>${m.ledger.map((l) => l.row).join(", ")}</td>
-     <td class="num">${esc(m.ledger.length === 1 ? m.ledger[0].amount : m.bank[0].amount)} ${esc(m.bank[0].currency)}</td><td class="muted">${esc(JSON.stringify(m.evidence))}</td></tr>`).join("") + "</table>";
+     <td class="num">${esc(m.ledger.length === 1 ? m.ledger[0].amount : m.bank[0].amount)} ${esc(m.bank[0].currency)}</td><td class="muted">${esc(JSON.stringify(m.evidence))}</td></tr>`).join("") + "</tbody></table>";
 }
 
 function renderQuestions(qs) {
   $("questions").hidden = false;
-  $("questions").innerHTML = "<h2>The agent needs you</h2><p class='muted'>It stopped instead of guessing.</p>" + qs.map(questionHtml).join("") +
-    `<button onclick="answer()">Answer and re-run</button>`;
+  $("questions").innerHTML = "<h2>The agent needs you</h2><p class='muted'>It stopped instead of guessing. Your answer is re-checked by code before it is used.</p>" +
+    qs.map(questionHtml).join("") + `<button id="answerBtn">Answer and re-run</button>`;
 }
 
 function questionHtml(q, i) {
   if (q.type === "column_mapping") {
     const opts = (sel) => q.headers.map((h) => `<option ${h === sel ? "selected" : ""}>${esc(h)}</option>`).join("");
-    const roles = q.missing;
-    return `<div class="q" data-i="${i}" data-type="column_mapping" data-side="${esc(q.side)}"><p>${esc(q.text)}</p>
+    return `<fieldset class="q" data-i="${i}" data-type="column_mapping" data-side="${esc(q.side)}"><legend>${esc(q.text)}</legend>
       ${q.suggested && Object.keys(q.suggested).length ? `<p class="muted">LLM suggestion (pre-filled, please confirm): ${esc(q.suggestion_reason || "")}</p>` : ""}
-      ${roles.map((r) => `<label>${r} <select data-role="${r}">${opts((q.suggested || {})[r])}</select></label>`).join(" ")}
-      <pre>${esc(JSON.stringify(q.sample, null, 1))}</pre></div>`;
+      ${q.missing.map((r) => `<label class="inline">${esc(r)} <select data-role="${esc(r)}">${opts((q.suggested || {})[r])}</select></label>`).join(" ")}
+      <pre>${esc(JSON.stringify(q.sample, null, 1))}</pre></fieldset>`;
   }
   if (q.type === "date_format")
-    return `<div class="q" data-type="date_format" data-side="${esc(q.side)}"><p>${esc(q.text)}</p><p class="muted">Examples: ${esc(q.examples.join(", "))}</p>
-      <label><input type="radio" name="df-${esc(q.side)}" value="dmy" checked> day first</label> <label><input type="radio" name="df-${esc(q.side)}" value="mdy"> month first</label></div>`;
+    return `<fieldset class="q" data-type="date_format" data-side="${esc(q.side)}"><legend>${esc(q.text)}</legend><p class="muted">Examples: ${esc(q.examples.join(", "))}</p>
+      <label class="inline"><input type="radio" name="df-${esc(q.side)}" value="dmy" checked> day first</label> <label class="inline"><input type="radio" name="df-${esc(q.side)}" value="mdy"> month first</label></fieldset>`;
   if (q.type === "ambiguous_match") {
     // Each option is a whole grouping {bank:[...], ledger:[...]}; the server re-checks that the amounts agree.
     const opts = q.combos
       ? q.combos.map((c) => q.split_side === "b" ? { bank: c, ledger: q.ledger } : { bank: q.bank, ledger: c })
       : q.ledger.length > 1 ? q.ledger.map((l) => ({ bank: [q.bank[0]], ledger: [l] }))
       : q.bank.map((b) => ({ bank: [b], ledger: [q.ledger[0]] }));
-    const radios = opts.map((o) => `<label><input type="radio" name="amb-${i}" value='${esc(JSON.stringify(o))}'> bank row ${o.bank.join(" + ")} ↔ ledger row ${o.ledger.join(" + ")}</label>`);
-    return `<div class="q" data-type="ambiguous_match" data-i="${i}"><p>${esc(q.amount)} ${esc(q.currency)}: ${esc(q.text)}</p>${radios.join("<br>")}
-      <br><label><input type="radio" name="amb-${i}" value="" checked> leave open</label></div>`;
+    const radios = opts.map((o) => `<label class="opt"><input type="radio" name="amb-${i}" value="${esc(JSON.stringify(o))}"> bank row ${o.bank.join(" + ")} pays ledger row ${o.ledger.join(" + ")}</label>`);
+    return `<fieldset class="q" data-type="ambiguous_match" data-i="${i}"><legend>${esc(q.amount)} ${esc(q.currency)}: ${esc(q.text)}</legend>${radios.join("")}
+      <label class="opt"><input type="radio" name="amb-${i}" value="" checked> leave open</label></fieldset>`;
   }
   return `<div class="q"><p>${esc(q.text || q.type)}</p></div>`;
 }
@@ -159,6 +216,14 @@ function answer() {
   run(false);
 }
 
+document.addEventListener("click", (ev) => {
+  const t = ev.target.closest("button");
+  if (!t) return;
+  if (t.dataset.approve) approve(t);
+  else if (t.id === "answerBtn") answer();
+});
 readFile($("bankFile"), "bank"); readFile($("ledgerFile"), "ledger");
-$("demo").onclick = loadDemo; $("run").onclick = () => run(true);
+$("tryDemo").addEventListener("click", tryDemo);
+$("run").addEventListener("click", () => run(true));
 health();
+loadSamples().then(() => { if (new URLSearchParams(location.search).has("demo")) tryDemo(); });

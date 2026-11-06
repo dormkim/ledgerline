@@ -1,0 +1,9 @@
+Invoice Date,Due Date,Type,Contact Name,Invoice Number,Description,Total,Currency
+2026-09-28,2026-10-02,Bill,Bürohaus Kessler KG,ER-88,Office rent October,2200.00,EUR
+2026-09-22,2026-10-06,Sales invoice,Brandt Maschinenbau AG,RE-26101,Control system phase 1,4760.00,EUR
+2026-09-30,2026-10-09,Bill,Telefonica Germany,ER-89,Mobile plan September,89.90,EUR
+2026-09-29,2026-10-13,Sales invoice,Lindner Logistik GmbH,RE-26102,Route planning workshop,2380.00,EUR
+2026-10-01,2026-10-15,Sales invoice,Hoffmann Retail OHG,RE-26103,Shop analytics,1190.00,EUR
+2026-10-02,2026-10-16,Sales invoice,Hoffmann Retail OHG,RE-26104,Training day,595.00,EUR
+2026-10-07,2026-10-21,Bill,Cloudhaus Hosting,ER-90,Server October,149.00,EUR
+2026-09-15,2026-10-15,Sales invoice,Weber Zahnarztpraxis,RE-26098,Booking system,3570.00,EUR

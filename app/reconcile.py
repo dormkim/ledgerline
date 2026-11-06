@@ -118,3 +118,18 @@ def followups(ledger: list[Txn], excs: list[dict], as_of: date) -> list[dict]:
 def summary(link: Link) -> dict:
     return {"rule": link.rule, "bank": [t.card() for t in link.bank], "ledger": [t.card() for t in link.ledger],
             "evidence": link.evidence}
+
+
+def overview(bank: list[Txn], ledger: list[Txn], res: Result, excs: list[dict], fus: list[dict], questions: int) -> dict:
+    """The numbers for the summary cards at the top of the UI. Counted here so the browser does no math."""
+    by_kind: dict[str, int] = defaultdict(int)
+    for e in excs:
+        by_kind[e["kind"]] += 1
+    overdue: dict[str, Decimal] = defaultdict(Decimal)
+    for f in fus:
+        overdue[f["currency"]] += Decimal(f["amount"])
+    matched_b = sum(len(m.bank) for m in res.matches)
+    return {"bank_lines": len(bank), "ledger_lines": len(ledger), "matched_bank_lines": matched_b,
+            "matched_ledger_lines": sum(len(m.ledger) for m in res.matches), "match_groups": len(res.matches),
+            "exceptions": len(excs), "exceptions_by_kind": dict(by_kind), "questions": questions,
+            "followups": len(fus), "overdue_by_currency": {c: str(v) for c, v in sorted(overdue.items())}}
