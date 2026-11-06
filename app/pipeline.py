@@ -57,10 +57,18 @@ def _understand(side, data, answers, use_llm, tr) -> tuple[list, list, dict, dic
     _type_as_flag(found, headers, rows)
     how = {k: "header" for k in found}
     mapping_answer = (answers.get("mapping") or {}).get(side) if isinstance(answers.get("mapping"), dict) else None
+    not_used: list[str] = []
     for role, h in (mapping_answer if isinstance(mapping_answer, dict) else {}).items():
-        if h in headers:
-            found = {k: v for k, v in found.items() if v != h} | {role: h}
-            how[role] = "user"
+        if h not in headers:
+            continue
+        # The user's choice gets the same value check as an LLM suggestion: a date column picked as the
+        # amount would otherwise turn every row unreadable, or worse, into wrong numbers.
+        problem = columns.role_problem(role, columns.column(rows, headers, h))
+        if problem:
+            not_used.append(f"{role} = '{h}' ({problem})")
+            continue
+        found = {k: v for k, v in found.items() if v != h} | {role: h}
+        how[role] = "user"
     filled = columns.from_values(headers, rows, found)
     how |= {k: "values" for k in filled if k not in found}
     found = filled
@@ -70,12 +78,13 @@ def _understand(side, data, answers, use_llm, tr) -> tuple[list, list, dict, dic
         # so a person confirms it — even when the LLM's pick passes the value checks.
         suggestion, meta = llm_columns.propose(side, headers, rows, found) if use_llm else ({}, {"error": "LLM off"})
         tr.step(f"map {side} columns", t, "asked", missing=need, llm_suggestion=suggestion,
-                llm_ms=meta.get("ms"), llm_error=meta.get("error"), rejected=meta.get("rejected"))
+                llm_ms=meta.get("ms"), llm_error=meta.get("error"), rejected=meta.get("rejected"),
+                answer_not_used=not_used or None)
         return {"type": "column_mapping", "side": side, "missing": need, "headers": headers,
                 "sample": [dict(zip(headers, r)) for r in rows[:3]], "found": found,
-                "suggested": suggestion, "suggestion_reason": meta.get("reason"),
+                "suggested": suggestion, "suggestion_reason": meta.get("reason"), "answer_not_used": not_used,
                 "text": f"Which column in the {side} file holds the {' and the '.join(need)}?"}
-    tr.step(f"map {side} columns", t, mapping=found, how=how)
+    tr.step(f"map {side} columns", t, mapping=found, how=how, answer_not_used=not_used or None)
     return headers, rows, found, how
 
 

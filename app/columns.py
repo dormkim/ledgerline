@@ -124,6 +124,19 @@ def _drop_running_balance(headers, rows, cols: list[str]) -> list[str]:
     return cols
 
 
+DATE_ROLES = {"date", "due"}
+MONEY_ROLES = {"amount", "in", "out", "debit", "credit"}
+
+
+def role_problem(role: str, values: list[str]) -> str | None:
+    """Why a column cannot hold this role, or None. Used for LLM suggestions and for the user's own answer."""
+    if role in DATE_ROLES and date_rate(values) < 0.9:
+        return "values are not dates"
+    if role in MONEY_ROLES and money_rate(values) < 0.9:
+        return "values are not amounts"
+    return None
+
+
 def missing(found: dict[str, str]) -> list[str]:
     need = []
     if "date" not in found:

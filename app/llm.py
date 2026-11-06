@@ -73,6 +73,8 @@ def _done(meta: dict, t0: float) -> dict:
 
 def parse_json(text: str) -> dict | None:
     text = re.sub(r"<think>.*?</think>", "", text or "", flags=re.S).strip()  # reasoning models
+    if text.startswith("<think>"):  # reasoning cut off by max_tokens: no answer in it, and its braces are not JSON
+        return None
     m = re.search(r"```(?:json)?\s*(.*?)```", text, re.S)
     if m:
         text = m.group(1)

@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 
 from . import llm
-from .columns import column, date_rate, money_rate
+from .columns import column, role_problem
 
 SYSTEM = """You map columns of a CSV export (bank statement or accounting ledger) to roles.
 Roles: date, amount (single signed amount), in / out (separate money-in and money-out columns),
@@ -28,11 +28,9 @@ def propose(side: str, headers: list[str], rows: list[list[str]], found: dict[st
     for role, h in proposal.items():
         if role in found:
             continue
-        vals = column(rows, headers, h)
-        if role in {"date", "due"} and date_rate(vals) < 0.9:
-            rejected.append(f"{role}='{h}' (values are not dates)")
-        elif role in {"amount", "in", "out", "debit", "credit"} and money_rate(vals) < 0.9:
-            rejected.append(f"{role}='{h}' (values are not amounts)")
+        problem = role_problem(role, column(rows, headers, h))
+        if problem:
+            rejected.append(f"{role}='{h}' ({problem})")
         else:
             accepted[role] = h
     meta["reason"] = str(reply.get("reason", ""))[:200]

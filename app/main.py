@@ -16,7 +16,7 @@ from . import export, llm, pipeline, store
 
 ROOT = Path(__file__).resolve().parent
 SAMPLES = ROOT.parent / "samples"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 # Demo data sets: (folder, label). The first one is the default and the one in the demo video.
 SAMPLE_SETS = {
     "us_quickbooks": "US bank + QuickBooks-style ledger (USD and EUR)",

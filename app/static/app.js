@@ -19,7 +19,10 @@ async function health() {
   try {
     const h = await (await fetch("/healthz")).json();
     const l = h.llm;
-    $("llm").textContent = `LLM: ${l.state}${l.model ? " · " + l.model : ""}${l.vultr_inference ? " · Vultr Serverless Inference" : " · " + l.endpoint_host}`;
+    // Name the inference service only when it is really in use; otherwise say the wording comes from templates.
+    $("llm").textContent = l.state === "configured"
+      ? `LLM: ${l.model} · ${l.vultr_inference ? "Vultr Serverless Inference" : l.endpoint_host}`
+      : `LLM ${l.state === "disabled" ? "off" : "not configured"} · template wording, same numbers`;
     $("llm").className = "badge " + (l.state === "configured" ? "ok" : "warn");
   } catch { $("llm").textContent = "LLM: status unknown"; }
 }
@@ -59,7 +62,7 @@ async function run(fresh = true) {
       body: JSON.stringify({ bank_csv: $("bank").value, ledger_csv: $("ledger").value, answers: state.answers, parent: fresh ? null : state.runId }) });
     const r = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }));
     if (!res.ok) throw new Error(typeof r.detail === "string" ? r.detail : (r.detail || []).map((d) => d.msg).join("; ") || `HTTP ${res.status}`);
-    state.runId = r.id; render(r);
+    state.runId = r.id; render(r, fresh ? null : state.answers);
     $("results").focus({ preventScroll: true });
     $("results").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e) { showError(String(e.message || e)); }
@@ -68,8 +71,19 @@ async function run(fresh = true) {
 
 function showError(msg) { $("error").hidden = false; $("error").innerHTML = `<h2>Could not reconcile</h2><p>${esc(msg)}</p>`; }
 
-function render(r) {
-  ["error", "summary", "questions", "totalsCard", "excCard", "fuCard", "matchCard"].forEach((id) => ($(id).hidden = true));
+function answeredHtml(a) {
+  // After a re-run, say what the user decided, so a changed count (e.g. the other candidate now open) is explained.
+  const parts = [];
+  (a.pairs || []).forEach((p) => parts.push(`bank row ${[].concat(p.bank).join(" + ")} pays ledger row ${[].concat(p.ledger).join(" + ")}`));
+  Object.entries(a.mapping || {}).forEach(([side, m]) => parts.push(`${side} columns: ${Object.entries(m).map(([k, v]) => `${k} = ${v}`).join(", ")}`));
+  Object.entries(a.date_format || {}).forEach(([side, f]) => parts.push(`${side} dates: ${{ dmy: "day first", mdy: "month first", ymd: "year first" }[f] || f}`));
+  const open = a.pairs?.length ? " Lines you did not pick stay open and are listed below." : "";
+  return parts.length ? `<p><b>Re-run with your answers:</b> ${parts.map(esc).join(" · ")}.${open}</p>` : "";
+}
+
+function render(r, answered = null) {
+  ["error", "summary", "questions", "answered", "totalsCard", "excCard", "fuCard", "matchCard"].forEach((id) => ($(id).hidden = true));
+  if (answered && answeredHtml(answered)) { $("answered").hidden = false; $("answered").innerHTML = answeredHtml(answered); }
   $("traceCard").hidden = false;
   $("total").textContent = `· ${r.total_ms} ms total · run ${r.id}`;
   $("trace").innerHTML = r.trace.map(stepHtml).join("");
@@ -180,9 +194,11 @@ function questionHtml(q, i) {
   if (q.type === "column_mapping") {
     const opts = (sel) => q.headers.map((h) => `<option ${h === sel ? "selected" : ""}>${esc(h)}</option>`).join("");
     return `<fieldset class="q" data-i="${i}" data-type="column_mapping" data-side="${esc(q.side)}"><legend>${esc(q.text)}</legend>
+      ${q.answer_not_used?.length ? `<p class="warn-text">Not used, the values do not fit: ${esc(q.answer_not_used.join("; "))}</p>` : ""}
       ${q.suggested && Object.keys(q.suggested).length ? `<p class="muted">LLM suggestion (pre-filled, please confirm): ${esc(q.suggestion_reason || "")}</p>` : ""}
       ${q.missing.map((r) => `<label class="inline">${esc(r)} <select data-role="${esc(r)}">${opts((q.suggested || {})[r])}</select></label>`).join(" ")}
-      <pre>${esc(JSON.stringify(q.sample, null, 1))}</pre></fieldset>`;
+      <div class="scroll"><table class="rows"><thead><tr>${q.headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${
+        q.sample.map((r) => `<tr>${q.headers.map((h) => `<td>${esc(r[h])}</td>`).join("")}</tr>`).join("")}</tbody></table></div></fieldset>`;
   }
   if (q.type === "date_format")
     return `<fieldset class="q" data-type="date_format" data-side="${esc(q.side)}"><legend>${esc(q.text)}</legend><p class="muted">Examples: ${esc(q.examples.join(", "))}</p>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ledgerline: bank reconciliation agent</title>
   <meta name="description" content="Upload a bank statement and a ledger. Ledgerline matches them, explains every exception with evidence and drafts payment reminders. Code does the math; every number the model writes is checked.">
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=0.2.1">
   <link rel="icon" href="data:,">
 </head>
 <body>
@@ -57,6 +57,8 @@
   <div id="results" tabindex="-1">
     <section class="card error" id="error" role="alert" hidden></section>
 
+    <section class="card note" id="answered" role="status" hidden></section>
+
     <section id="summary" class="summary" hidden aria-label="Summary"></section>
 
     <section class="card" id="questions" hidden></section>
@@ -91,6 +93,6 @@
 </main>
 <footer>Runs on a Vultr Cloud Compute VM · LLM via Vultr Serverless Inference (OpenAI-compatible) ·
   <a href="/healthz">/healthz</a> · <a href="https://opensource.org/license/mit">MIT</a></footer>
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=0.2.1"></script>
 </body>
 </html>

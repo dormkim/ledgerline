@@ -10,6 +10,7 @@ import json
 import ssl
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -75,13 +76,27 @@ def run_case(case: Path, url: str | None, use_llm: bool, insecure: bool = False)
     if url:
         req = urllib.request.Request(url.rstrip("/") + "/api/runs", data=json.dumps(
             {"bank_csv": bank, "ledger_csv": ledger}).encode(), headers={"Content-Type": "application/json"})
-        ctx = ssl._create_unverified_context() if insecure else None  # local Caddy uses its own CA
-        with urllib.request.urlopen(req, timeout=120, context=ctx) as resp:
-            r = json.loads(resp.read())
+        r = _post(req, insecure)
     else:
         from app import pipeline
         r = pipeline.run(bank, ledger, use_llm=use_llm)
     return r, (time.perf_counter() - t0) * 1000
+
+
+def _post(req: urllib.request.Request, insecure: bool, waits: tuple[int, ...] = (60, 120, 240, 300)) -> dict:
+    """POST one case. The public app allows 20 runs per 10 minutes per address, so both sets in a row
+    hit 429. Wait (12 minutes in all, longer than the window) and retry instead of crashing halfway."""
+    ctx = ssl._create_unverified_context() if insecure else None  # local Caddy uses its own CA
+    for wait in (*waits, None):
+        try:
+            with urllib.request.urlopen(req, timeout=120, context=ctx) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            if e.code != 429 or wait is None:
+                raise
+            print(f"  rate limited (429), waiting {wait} s", file=sys.stderr)
+            time.sleep(wait)
+    raise AssertionError("unreachable")
 
 
 def main() -> None:
@@ -99,7 +114,11 @@ def main() -> None:
         if not case.is_dir():
             continue
         exp = json.loads((case / "expected.json").read_text())
-        r, ms = run_case(case, a.url, a.llm, a.insecure)
+        try:
+            r, ms = run_case(case, a.url, a.llm, a.insecure)
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+            # One unreachable case is a failed case in the report, not a crash that hides the other results.
+            r, ms = {"status": f"request failed: {type(e).__name__} {getattr(e, 'code', '')}".strip()}, 0.0
         s = score(exp, actual_view(r))
         narr = [e.get("narrative", {}).get("source") for e in r.get("exceptions", [])]
         rows.append({"case": case.name, "ms": round(ms), "status": r.get("status"), **s,
