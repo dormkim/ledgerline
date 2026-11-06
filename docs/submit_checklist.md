@@ -66,7 +66,7 @@
 배포 스크립트를 깨끗한 Ubuntu 24.04 컨테이너에서 끝까지 실행(systemctl·ufw만 흉내): Docker 설치, `.env` 생성 후 멈춤,
 모델 비었으면 멈춤, 빌드·기동, HTTP→HTTPS 리다이렉트, `/healthz` 응답까지 확인. apt 잠금 대기·IPv4 확인·비공개 레포 복사 경로·
 `PUBLIC_HOST` 저장(재부팅·수동 `docker compose` 대비) 추가. 열 지정 답도 값 검사, 다시 실행 뒤 "내가 고른 답" 안내, LLM 꺼짐 배지 정직하게,
-평가 스크립트 429 재시도. 시험 65 → 71. 리뷰 `docs/review_1106_evening.md`.
+평가 스크립트 429 재시도. 시험 65 → 72. 리뷰 `docs/review_1106_evening.md`.
 
 ## 이미 된 것 (Claude, 11-06)
 

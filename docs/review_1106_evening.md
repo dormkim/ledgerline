@@ -26,6 +26,8 @@
 10. **추론 모델의 잘린 `<think>`**: max_tokens에서 잘리면 생각 속 중괄호를 JSON으로 읽을 수 있었다. → 잘린 생각은 "JSON 아님"으로 처리(시험 있음). Vultr에서 추론 계열 모델을 고를 경우 대비.
 11. 열 지정 질문의 예시 행이 JSON 덩어리였다 → 표로. 정적 파일에 버전 쿼리(`?v=0.2.1`)를 붙여 재배포 뒤 옛 JS가 남지 않게.
 
+12. **재배포 뒤 옛 화면**: `/`와 `/static/*`에 캐시 지시가 없어 브라우저가 옛 `index.html`을 그대로 썼다(이번 리뷰 중 실제로 겪음, 버전 쿼리만으로는 못 막는다). 심사 직전에 고쳐 다시 올리면 심사위원이 옛 화면을 볼 수 있었다. → `Cache-Control: no-cache`(304로 싸게 재검증), 시험 1개.
+
 ## 3. 배포 리허설 (Ubuntu 24.04 컨테이너)
 
 `ubuntu:24.04` 컨테이너에서 `deploy/vultr-setup.sh`를 세 번 실행했다(호스트 Docker 소켓 사용, `systemctl`·`ufw`만 흉내).
@@ -49,13 +51,13 @@
 - `deploy/vultr-setup.sh`, `deploy/list-vultr-models.sh`: 위 2~5번
 - `app/columns.py`(`role_problem` 공용), `app/llm_columns.py`, `app/pipeline.py`: 사람 답 검사(7번), `answer_not_used`를 질문과 단계 기록에 남김
 - `app/llm.py`: 잘린 `<think>`(10번)
-- `app/static/*`, `app/main.py`(버전 0.2.1): 8·9·11번
+- `app/static/*`, `app/main.py`(버전 0.2.1, 캐시 재검증): 8·9·11·12번
 - `eval/run_eval.py`: 6번
 - `README.md`: 첫 화면을 문제 → 대상 → 하는 일 → 왜 Vultr 순서로, 비공개 레포 배포 경로, IPv4 요금제, 시험 수 70
 - `docs/slides.html/pdf`: 표지에 한 줄 가치, 문제 장에 "누가", 아키텍처 장에 "왜 Vultr", 잘린 글 고침, 질문 화면 새로 찍음
 - `docs/demo_script.md`: 답한 뒤 안내 장면 한 줄
 - `docs/submit_checklist.md`: B 단계를 실제 순서로
-- 시험 65 → 71, 평가 20/20 그대로(로컬 in-process, 로컬 HTTP)
+- 시험 65 → 72, 평가 20/20 그대로(로컬 in-process, 로컬 HTTP)
 
 ## 6. 남은 약점 (배포 뒤 할 일)
 

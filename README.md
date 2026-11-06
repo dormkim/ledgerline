@@ -146,7 +146,7 @@ undecidable dates, meaningless headers and unreadable rows.
 - After the review, three sample sets were added; the UK one exposed a gap: a customer who paid on the due
   date, a month after the invoice, without a reference, stayed unmatched and got a reminder draft. Days are
   now counted from the due date when that is nearer, and the evidence card says so. All 20 cases still pass.
-- 71 tests (`pytest -q`), including LLM-invented numbers being removed and the LLM being down (the app falls
+- 72 tests (`pytest -q`), including LLM-invented numbers being removed and the LLM being down (the app falls
   back to template text and says so).
 
 ## Limits (honest)

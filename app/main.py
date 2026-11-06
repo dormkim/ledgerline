@@ -45,6 +45,9 @@ async def _headers(request: Request, call_next):
         resp.headers.setdefault(k, v)
     if request.url.path.startswith("/api/runs"):
         resp.headers["Cache-Control"] = "no-store"  # run bodies hold uploaded financial rows
+    elif request.url.path == "/" or request.url.path.startswith("/static/"):
+        # Revalidate (cheap 304s): without it browsers kept an old page and UI after a redeploy.
+        resp.headers["Cache-Control"] = "no-cache"
     return resp
 
 

@@ -64,3 +64,15 @@ def test_eval_waits_out_the_rate_limit_instead_of_crashing(monkeypatch):
     req = urllib.request.Request("http://x/api/runs", data=b"{}")
     assert run_eval._post(req, False) == {"status": "done"}
     assert slept == [60, 120] and sum(run_eval._post.__defaults__[0]) > 600
+
+
+def test_page_and_ui_files_are_revalidated_after_a_redeploy():
+    from fastapi.testclient import TestClient
+
+    from app import main
+
+    c = TestClient(main.app)
+    page = c.get("/")
+    assert page.headers["cache-control"] == "no-cache"
+    assert f"app.js?v={main.VERSION}" in page.text  # bump VERSION and the query together
+    assert c.get("/static/app.js").headers["cache-control"] == "no-cache"
