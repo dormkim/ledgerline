@@ -89,9 +89,11 @@ def main() -> None:
     ap.add_argument("--llm", action="store_true")
     ap.add_argument("--url")
     ap.add_argument("--insecure", action="store_true", help="accept a self-signed cert (local Caddy)")
-    ap.add_argument("--out", default=str(ROOT / "results"))
+    # Default name must not be "results": on macOS (case-insensitive) results.md overwrote RESULTS.md.
+    ap.add_argument("--out", help="output path without extension (default eval/local_<cases>)")
     ap.add_argument("--cases", default="cases", help="cases (first blind set) or holdout (second blind set)")
     a = ap.parse_args()
+    a.out = a.out or str(ROOT / f"local_{a.cases}")
     rows = []
     for case in sorted((ROOT / a.cases).iterdir()):
         if not case.is_dir():

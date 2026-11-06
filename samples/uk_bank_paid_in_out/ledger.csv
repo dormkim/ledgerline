@@ -1,0 +1,7 @@
+Type,Date,Ref,Name,Details,Gross,Due Date,Currency
+Purchase invoice,25/09/2026,PI-0915,Halden Estates,October rent,1850.00,01/10/2026,GBP
+Sales invoice,19/09/2026,SI-2201,Penrose Bakery,Menu boards,1440.00,03/10/2026,GBP
+Purchase invoice,01/10/2026,PI-0921,Adobe Systems,Creative Cloud,51.98,08/10/2026,GBP
+Sales invoice,22/09/2026,SI-2202,Quill & Co,Brand guidelines,960.00,22/10/2026,GBP
+Sales invoice,30/09/2026,SI-2203,Riverside Gym,Website rebuild,2400.00,14/10/2026,GBP
+Sales invoice,15/09/2026,SI-2199,Thornbury Ltd,Packaging design,3000.00,29/09/2026,GBP

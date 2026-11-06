@@ -41,3 +41,9 @@ python -m eval.run_eval --cases holdout --url https://<host>   # like a judge, t
 
 Result files: `results_first_blind_run.md`, `results_holdout_first_run.md` (first sight),
 `results_https_llm_cases.md`, `results_https_llm_holdout.md` (full stack).
+
+Found on 2026-11-06 while adding demo sample sets (not a blind case): in `samples/uk_bank_paid_in_out` a customer
+paid on the due date, 29 days after the invoice date, without a reference. The 7-day window was counted from the
+invoice date only, so the payment stayed unmatched and the customer got a reminder draft. Days are now counted
+from the due date when that is nearer (`days_counted_from: "due date"` in the evidence). Both case sets still
+pass 10/10, in-process and through the Docker HTTP stack (`tests/test_product.py`).

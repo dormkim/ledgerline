@@ -43,12 +43,20 @@ class Result:
 
 
 def _days(b: Txn, l: Txn) -> int:
-    return (b.date - l.date).days
+    """Days from the ledger line to the bank line. Customers pay on the due date, not the invoice date,
+    so when a due date exists the nearer of the two counts (a 30-day invoice paid on time is 0 days off)."""
+    days = (b.date - l.date).days
+    if l.due and abs((b.date - l.due).days) < abs(days):
+        return (b.date - l.due).days
+    return days
 
 
 def _evidence(b: Txn, l: Txn) -> dict:
-    return {"days_apart": _days(b, l), "name_score": name_score(l.name or l.desc, b.text),
-            "shared_ref": ref_hit(l.ref, l.text, b.text)}
+    ev = {"days_apart": _days(b, l), "name_score": name_score(l.name or l.desc, b.text),
+          "shared_ref": ref_hit(l.ref, l.text, b.text)}
+    if l.due and ev["days_apart"] != (b.date - l.date).days:
+        ev["days_counted_from"] = "due date"
+    return ev
 
 
 def _key(ev: dict) -> tuple:
@@ -200,7 +208,7 @@ def _mismatches(res: Result, free_b: dict, free_l: dict) -> None:
         for b in free_b.values():
             if b.currency != l.currency or (b.amount > 0) != (l.amount > 0) or ("b", b.row) in res.held:
                 continue
-            days = (b.date - l.date).days
+            days = _days(b, l)
             diff = b.amount - l.amount
             if abs(days) > REF_WINDOW_DAYS or abs(diff) >= abs(l.amount):  # cheap filters first; and a "short
                 continue                                                   # payment" can't exceed the invoice
