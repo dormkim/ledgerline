@@ -77,6 +77,7 @@ def run_case(case: Path, url: str | None, use_llm: bool, insecure: bool = False)
         req = urllib.request.Request(url.rstrip("/") + "/api/runs", data=json.dumps(
             {"bank_csv": bank, "ledger_csv": ledger}).encode(), headers={"Content-Type": "application/json"})
         r = _post(req, insecure)
+        t0 += _post.waited  # report the app's response time, not the time spent waiting out the rate limit
     else:
         from app import pipeline
         r = pipeline.run(bank, ledger, use_llm=use_llm)
@@ -87,6 +88,7 @@ def _post(req: urllib.request.Request, insecure: bool, waits: tuple[int, ...] = 
     """POST one case. The public app allows 20 runs per 10 minutes per address, so both sets in a row
     hit 429. Wait (12 minutes in all, longer than the window) and retry instead of crashing halfway."""
     ctx = ssl._create_unverified_context() if insecure else None  # local Caddy uses its own CA
+    _post.waited = 0.0
     for wait in (*waits, None):
         try:
             with urllib.request.urlopen(req, timeout=120, context=ctx) as resp:
@@ -95,7 +97,9 @@ def _post(req: urllib.request.Request, insecure: bool, waits: tuple[int, ...] = 
             if e.code != 429 or wait is None:
                 raise
             print(f"  rate limited (429), waiting {wait} s", file=sys.stderr)
+            t = time.perf_counter()
             time.sleep(wait)
+            _post.waited += time.perf_counter() - t
     raise AssertionError("unreachable")
 
 
