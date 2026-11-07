@@ -19,7 +19,7 @@
       Vultr 방화벽 그룹을 붙였다면 22·80·443을 열어 둔다(안 붙이면 할 일 없음, VM 안의 ufw는 스크립트가 연다)
 - [ ] 레포가 아직 비공개라 VM에서 `curl raw.githubusercontent…`·`git clone`이 **안 된다**. 맥에서 폴더를 복사해 올린다
       (로컬 `.env`는 안 올라감):
-      `cd ~/Desktop/gmail/vultr-agent-rush-2026 && rsync -a --exclude .env --exclude .git ./ root@<IP>:/opt/ledgerline/`
+      `cd <레포 폴더> && rsync -a --exclude .env --exclude .git ./ root@<IP>:/opt/ledgerline/`
       (`rsync`가 없다는 오류면 VM에서 `apt-get install -y rsync` 먼저)
 - [ ] VM에서 `bash /opt/ledgerline/deploy/vultr-setup.sh` → Docker 설치·방화벽·`.env`(권한 600) 만들고 멈춘다
 - [ ] `nano /opt/ledgerline/.env`에 `LLM_API_KEY` → `/opt/ledgerline/deploy/list-vultr-models.sh`로 모델 고르기 → `LLM_MODEL` 입력
@@ -61,7 +61,6 @@
 
 - [ ] VM을 끄지 않는다(심사위원이 URL을 연다). 크레딧이 끝난 뒤에도 쓰려면 Billing에 결제 수단 등록(대회 원문)
 - [ ] 11-09(월) 오전에 `/healthz` 한 번 확인
-- [ ] 수상 시: 상금은 개인에게 SWIFT 해외송금, W-8BEN·신분증·본인 명의 계좌 확인 필요, 미국 TIN 없이는 30% 원천징수, 통지 후 90일 안에 서류(규칙_원문.md "시상")
 
 ## 이미 된 것 (Claude, 11-06 저녁 추가)
 

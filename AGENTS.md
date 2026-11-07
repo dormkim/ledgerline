@@ -1,6 +1,6 @@
 # Ledgerline (Vultr Agent Rush 2026) 작업 규칙
 
-- 대회 규칙 원문·결정: `~/Desktop/gmail/contest-kit/20261109_vultr-agent-rush/`(규칙_원문.md, 착수.md, 결정.md). 마감 2026-11-09(월) 08:00 KST.
+- 대회 규칙 원문·결정은 비공개 작업 노트에 따로 둔다(공개 레포에 넣지 않음). 마감 2026-11-09(월) 08:00 KST.
 - 과제 2(Powering the Future of Work, Finance & Accounting). 필수: Vultr VM 백엔드 + Vultr 위 웹 배포. LLM은 Vultr Serverless Inference(OpenAI 호환)를 기본으로 쓴다.
 - 숫자는 코드가 계산한다(Decimal, 반올림 금지). LLM은 문장만 쓰고, 문장 속 숫자는 `app/numcheck.py`가 근거와 대조한다.
 - 모르면 묻는다: 동률 후보·열 불명·일/월 순서 불명은 질문으로 멈춘다. 실패를 빈 결과로 바꾸지 않는다.

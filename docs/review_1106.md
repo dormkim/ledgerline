@@ -1,7 +1,7 @@
 # 독립 리뷰 (2026-11-06, 처음 보는 심사위원 입장)
 
 대상: 커밋 `9124d60` 기준 코드·README·`docs/slides.pdf`·`docs/demo_script.md`·`eval/RESULTS.md`.
-심사 기준은 `~/Desktop/gmail/contest-kit/20261109_vultr-agent-rush/규칙_원문.md`의 원문 네 개(각 1~5점, 규칙서 기본값):
+심사 기준은 대회 규칙 원문의 네 개(각 1~5점, 규칙서 기본값):
 Application of Technology, Presentation, Business Value, Originality. 아래 점수는 추정이다.
 
 ## 1. 기준별 점수 추정
