@@ -23,6 +23,8 @@
       (`rsync`가 없다는 오류면 VM에서 `apt-get install -y rsync` 먼저)
 - [ ] VM에서 `bash /opt/ledgerline/deploy/vultr-setup.sh` → Docker 설치·방화벽·`.env`(권한 600) 만들고 멈춘다
 - [ ] `nano /opt/ledgerline/.env`에 `LLM_API_KEY` → `/opt/ledgerline/deploy/list-vultr-models.sh`로 모델 고르기 → `LLM_MODEL` 입력
+      (모델 목록은 키 없이도 나오는 공개 주소라, 스크립트가 먼저 빈 요청으로 키를 따로 확인한다. 401이면 키를 다시 복사. 글을 만들지 않으니 크레딧은 안 든다.
+      목록에는 글을 내는 모델만 나온다. 음성·그림·임베딩 모델을 `LLM_MODEL`에 넣으면 안 된다)
 - [ ] `bash /opt/ledgerline/deploy/vultr-setup.sh` 다시 실행 → 빌드·기동 후 `https://<ip-대시>.sslip.io/healthz`가 응답할 때까지 기다렸다가 출력한다.
       `"state":"configured"`, `"vultr_inference":true`인지 확인. 2분 넘게 안 뜨면 출력된 `docker compose … logs` 명령으로 Caddy 인증서 오류를 본다
 - [ ] 코드를 고친 뒤 다시 올릴 때도 같은 `rsync` + `vultr-setup.sh`(공개 뒤엔 `git pull`이 자동)

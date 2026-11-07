@@ -16,7 +16,9 @@ export DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a   # no interactive "res
 
 # A fresh VM runs unattended-upgrades for its first minutes and holds the apt lock; wait instead of failing.
 APT=(apt-get -o DPkg::Lock::Timeout=600 -y)
-"${APT[@]}" update && "${APT[@]}" install ca-certificates curl git ufw
+# The lock timeout covers dpkg; "update" can still hit the lists lock, so retry it for up to ~5 minutes.
+for i in $(seq 1 20); do "${APT[@]}" update && break; [ "$i" -lt 20 ] || exit 1; sleep 15; done
+"${APT[@]}" install ca-certificates curl git ufw
 
 if ! docker compose version >/dev/null 2>&1; then
   curl -fsSL https://get.docker.com | sh
@@ -51,7 +53,9 @@ fi
 
 # sslip.io needs the public IPv4 (IPv6-only plans cannot get a certificate this way).
 if [ -z "${PUBLIC_HOST:-}" ]; then
-  IP=$(curl -4 -fsS --max-time 10 https://api.ipify.org || true)
+  # Two lookup services, so one being down does not stop the deploy.
+  IP=$(curl -4 -fsS --max-time 10 https://api.ipify.org || curl -4 -fsS --max-time 10 https://ipv4.icanhazip.com || true)
+  IP=$(printf '%s' "$IP" | tr -d '[:space:]')
   [[ "$IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "!! no public IPv4 found; pick a Vultr plan with IPv4 or set PUBLIC_HOST"; exit 1; }
   PUBLIC_HOST="${IP//./-}.sslip.io"
 fi
