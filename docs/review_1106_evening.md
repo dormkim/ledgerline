@@ -42,8 +42,8 @@
 
 - 키·토큰 패턴(sk-, ghp_, AKIA, xox, Bearer 긴 값, PEM, JWT, `api_key=` 긴 값): **없음**. `.env`는 한 번도 커밋되지 않았다(`.gitignore`, 추가된 파일 목록으로 확인).
 - 이메일: 파일 안에는 없음. **커밋 작성자 메일은 11/6 GitHub noreply 주소로 바꿨다(이력 재작성).**
-- 개인 경로: `AGENTS.md`·`docs/review_1106.md`에 `~/Desktop/gmail/contest-kit/...` 경로가 한 줄씩 있다. 비밀은 아니다.
-- 한국어 내부 문서(`AGENTS.md`, `docs/review_*.md`, `docs/submit_checklist.md`)가 공개된다. 체크리스트에 상금 세금(W-8BEN) 메모가 있다. 해는 없지만 영어 심사위원에겐 잡음이다. 공개 전에 남길지 사용자가 정한다.
+- 개인 경로: 11/7에 현재 파일에서 뺐다(`7d961a7`).
+- 한국어 내부 문서(`AGENTS.md`, `docs/review_*.md`, `docs/submit_checklist.md`)가 공개된다. 상금 서류 메모는 11/7에 뺐다(비공개 노트에 원문이 있다).
 - `.env.example`에 DeepSeek 엔드포인트 예시 한 줄(값 없음). 문제없음.
 
 ## 5. 바뀐 것
