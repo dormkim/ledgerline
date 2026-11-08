@@ -21,7 +21,7 @@ ledger with invoices and bills."
 
 **0:35 to 1:05. The agent's steps**
 "The cards at the top are the answer: six of twelve bank lines matched by a named rule, eight exceptions to
-review, one question, two overdue invoices. In about two seconds it read both files, worked out which column is which, decided the date format from
+review, one question, two overdue invoices. In a few seconds it read both files, worked out which column is which, decided the date format from
 the data, picked the ledger's sign convention by checking which one agrees with the bank, and matched the
 lines with four named rules. Every step is listed here with its timing."
 
