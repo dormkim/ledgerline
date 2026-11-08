@@ -3,10 +3,16 @@
 Both case sets were written by a separate agent that never saw `app/` (blind). Each was scored on first
 sight, before any fix, and the first-sight score is kept below as the honest number.
 
-| Set | First sight (code never saw it) | After fixing what it exposed | Through the Docker + HTTPS stack, LLM on |
-|---|---|---|---|
-| `cases/` (10) | **8/10** exact | 10/10 | 10/10, median 1.7 s, max 2.2 s per run |
-| `holdout/` (10, written after the first fixes) | **8/10** exact | 10/10 | 10/10, median 1.5 s, max 2.0 s per run |
+| Set | First sight (code never saw it) | After fixing what it exposed | Docker + HTTPS stack, DeepSeek stand-in (11-06) | Live on Vultr: public URL, Vultr Serverless Inference (11-08) |
+|---|---|---|---|---|
+| `cases/` (10) | **8/10** exact | 10/10 | 10/10, median 1.7 s, max 2.2 s per run | 10/10, median 2.3 s, max 3.1 s per run |
+| `holdout/` (10, written after the first fixes) | **8/10** exact | 10/10 | 10/10, median 1.5 s, max 2.0 s per run | 10/10, median 2.2 s, max 3.0 s per run |
+
+The live run (2026-11-08) went through `https://64-176-236-185.sslip.io` from a laptop in Korea to a Vultr
+Cloud Compute VM in Seoul, with `deepseek-v4.1-flash-1017` on Vultr Serverless Inference writing the text. Matches
+63/63 and 44/44, exceptions 24/24 and 21/21. Over all 20 runs the median is 2.2 s; the two runs that stop before
+any model call (an empty file, an undecidable date order) take 46 ms. In `holdout/01` the number checker removed
+one model sentence and kept the rest (shown in the evidence card). Files: `results_vultr_cases.md`, `results_vultr_holdout.md`.
 
 "Exact" means every match group, every exception (kind, rows, difference), every question type and the
 error flag equal the expected file. Matching alone takes 1–15 ms; the rest is the two parallel LLM calls.
@@ -40,7 +46,8 @@ python -m eval.run_eval --cases holdout --url https://<host>   # like a judge, t
 ```
 
 Result files: `results_first_blind_run.md`, `results_holdout_first_run.md` (first sight),
-`results_https_llm_cases.md`, `results_https_llm_holdout.md` (full stack).
+`results_https_llm_cases.md`, `results_https_llm_holdout.md` (full stack, DeepSeek stand-in),
+`results_vultr_cases.md`, `results_vultr_holdout.md` (live on Vultr).
 
 Found on 2026-11-06 while adding demo sample sets (not a blind case): in `samples/uk_bank_paid_in_out` a customer
 paid on the due date, 29 days after the invoice date, without a reference. The 7-day window was counted from the

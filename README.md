@@ -2,7 +2,7 @@
 
 **Vultr Agent Rush Hackathon, Challenge 02 "Powering the Future of Work": Finance & Accounting.**
 
-**Live demo:** `https://<vultr-vm-ip>.sslip.io` (filled in after deployment; `/?demo=1` runs the sample on load) ·
+**Live demo:** <https://64-176-236-185.sslip.io> (on a Vultr VM in Seoul; [`/?demo=1`](https://64-176-236-185.sslip.io/?demo=1) runs the sample on load) ·
 **Video:** _link_ · **Slides:** [`docs/slides.pdf`](docs/slides.pdf)
 
 **The problem.** Every month someone in finance puts the bank statement next to the ledger and ticks off lines
@@ -24,7 +24,7 @@ with `LLM_DISABLED=1` no data leaves the VM. [Architecture below](#vultr-infrast
 
 ![Ledgerline after one click on "Run the sample reconciliation": summary cards, the question it stopped on, exceptions with evidence](docs/img/hero.png)
 
-<sub>Screenshot of a local run with the LLM switched off, so the wording is the code template. On the Vultr deployment the badge names the model and "Vultr Serverless Inference".</sub>
+<sub>Screenshot of the live Vultr deployment, with the wording written by Vultr Serverless Inference.</sub>
 
 **Try it in 30 seconds:** open the demo URL, pick one of three sample sets (US bank + QuickBooks-style ledger,
 German `;` export with `1.234,56` amounts + Xero-style invoices, UK bank with Paid in / Paid out + Sage-style
@@ -73,7 +73,7 @@ text cells defused so the file is safe to open in Excel.
 
 | Criterion | Where it is met |
 |---|---|
-| **Application of Technology** | The LLM is used where language matters and kept away from arithmetic: column understanding (`app/llm_columns.py`, suggestion validated by code then confirmed by the user), exception explanations and reminder drafts (`app/narrate.py`), both guarded by a number checker (`app/numcheck.py`). It runs on **Vultr Serverless Inference** (OpenAI-compatible) by default; one env var swaps the endpoint. The two LLM calls run in parallel, so a run takes about 1.5–2 s end to end. |
+| **Application of Technology** | The LLM is used where language matters and kept away from arithmetic: column understanding (`app/llm_columns.py`, suggestion validated by code then confirmed by the user), exception explanations and reminder drafts (`app/narrate.py`), both guarded by a number checker (`app/numcheck.py`). It runs on **Vultr Serverless Inference** (OpenAI-compatible) by default; one env var swaps the endpoint. The two LLM calls run in parallel, so a run takes 1.5–3.1 s end to end on the live VM (median 2.2 s over the 20 cases). |
 | **Presentation** | `docs/slides.pdf` (problem, solution, demo, architecture, evaluation, market, roadmap) and `docs/demo_script.md` (2–3 min video). The UI shows the agent's steps and timings live. |
 | **Business Value** | Month-end close in small finance teams and bookkeeping firms: the matching is tedious and errors are expensive. Ledgerline handles the exports people already have (QuickBooks, Xero, Sage-style, US/EU/UK/AU/CA bank CSVs, `;` and tab separators, `1.234,56` amounts, DR/CR columns, preamble lines) and leaves a reviewer with only the exceptions, each with evidence and a next step. |
 | **Originality** | An agent that is designed to *stop*: ties, unclear columns and undecidable date formats become questions, not guesses. LLM output is verified against code-computed evidence and every removal is visible. Exceptions carry evidence cards a human can audit. Unreadable rows and LLM failures are shown, never turned into empty results. |
@@ -139,8 +139,8 @@ DR/CR columns, split payments, bank-fee shortfalls, duplicates, real identical p
 undecidable dates, meaningless headers and unreadable rows.
 
 - First sight: **8/10** and **8/10** exact. Every failure and its fix is listed in [`eval/RESULTS.md`](eval/RESULTS.md).
-- Now: 20/20 exact, also through the Docker + HTTPS stack with the LLM on. A run takes a median of
-  1.5–1.7 s, and at most 2.2 s.
+- Now: 20/20 exact, also through the public URL on the Vultr VM with Vultr Serverless Inference
+  (`deepseek-v4.1-flash-1017`) writing the text. A run takes a median of 2.2 s, and at most 3.1 s.
 - An independent code review found 15 more defects (sign parsing, thousands separators, a spoofable rate
   limit, crash paths and others). All are fixed and each has a regression test.
 - After the review, three sample sets were added; the UK one exposed a gap: a customer who paid on the due

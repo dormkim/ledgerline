@@ -80,7 +80,7 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
 <img src="img/architecture.png" style="width:72%; border:0; display:block; margin:-14px auto 0">
   <ul style="margin-top:6px">
     <li style="font-size:20px"><b>Why Vultr:</b> the VM runs every step, the run state and the approval audit log; Serverless Inference writes the words. No other cloud service, and with the model off no data leaves the VM.</li>
-    <li style="font-size:20px">Deployed with one script: <code>deploy/vultr-setup.sh</code> (Docker + Caddy HTTPS on <code>&lt;ip&gt;.sslip.io</code>).</li>
+    <li style="font-size:20px">Deployed with one script: <code>deploy/vultr-setup.sh</code> (Docker + Caddy HTTPS). Live: <code>https://64-176-236-185.sslip.io</code>, model <code>deepseek-v4.1-flash-1017</code> on Vultr Serverless Inference.</li>
   </ul>
 </section>
 
@@ -88,9 +88,9 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
   <div class="kicker">Evaluation</div>
   <h2>Tested on 20 file pairs someone else wrote without seeing the code</h2>
   <table>
-    <tr><th></th><th>First sight</th><th>After fixes</th><th>Full stack (Docker, HTTPS, LLM on)</th></tr>
-    <tr><td>Set 1 (10 cases)</td><td><b>8 / 10</b></td><td>10 / 10</td><td>10 / 10 · median 1.7 s · max 2.2 s</td></tr>
-    <tr><td>Holdout set (10 cases, written after the first fixes)</td><td><b>8 / 10</b></td><td>10 / 10</td><td>10 / 10 · median 1.5 s · max 2.0 s</td></tr>
+    <tr><th></th><th>First sight</th><th>After fixes</th><th>Live on Vultr (public URL, Vultr Serverless Inference)</th></tr>
+    <tr><td>Set 1 (10 cases)</td><td><b>8 / 10</b></td><td>10 / 10</td><td>10 / 10 · median 2.3 s · max 3.1 s</td></tr>
+    <tr><td>Holdout set (10 cases, written after the first fixes)</td><td><b>8 / 10</b></td><td>10 / 10</td><td>10 / 10 · median 2.2 s · max 3.0 s</td></tr>
   </table>
   <p style="margin-top:26px">"Exact" means every match group, exception, difference and question equals the expected answer.
   The four first-sight failures (headers it did not know, such as <code>Txn Desc</code>, <code>Payments</code> and <code>N° pièce</code>; a year read as an invoice number; two real identical payments flagged as a duplicate; <code>$</code> assumed to be USD) and their fixes are listed in <code>eval/RESULTS.md</code>.
@@ -131,6 +131,6 @@ pre { font-size: 16px; background: #f6f7fb; padding: 20px 24px; border-radius: 1
     <li>Measure the claim we have not measured yet: time a real month-end close with and without Ledgerline at a small bookkeeping firm.</li>
     <li>Tighter number checks that tie each number to the field it came from, not just "it appears in the evidence".</li>
   </ul>
-  <p class="muted" style="margin-top:40px">Code: GitHub (MIT) · Live demo on a Vultr VM · Evaluation data and results are in the repo.</p>
+  <p class="muted" style="margin-top:40px">Code: github.com/dormkim/ledgerline (MIT) · Live demo: https://64-176-236-185.sslip.io · Evaluation data and results are in the repo.</p>
 </section>
 </body></html>
